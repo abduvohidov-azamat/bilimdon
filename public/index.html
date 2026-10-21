@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0b3c6b">
+<title>Bilimdon — oʻyinga qoʻshilish</title>
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="flagbar"></div>
+<div class="corner-tools" id="corner-tools">
+  <button class="btn ghost small script-toggle"><i data-icon="script"></i><span class="lbl"></span></button>
+  <button class="btn ghost small icon-only theme-toggle"></button>
+</div>
+
+<!-- 1. PIN-kod -->
+<section class="screen" id="s-pin">
+  <div class="center">
+    <h1 class="logo"><span class="mark"><i data-icon="bulb"></i></span><span>Bilim<span class="hl">don</span></span></h1>
+    <p class="tagline">Bilimingizni sinang — oʻynab oʻrganing!</p>
+    <form class="panel" id="f-pin" autocomplete="off">
+      <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Oʻyin PIN-kodi" aria-label="Oʻyin PIN-kodi">
+      <button class="btn block">Kirish <i data-icon="next"></i></button>
+      <p class="error" id="pin-err"></p>
+    </form>
+    <p class="link">Oʻqituvchimisiz? <a href="/host.html">Viktorina yarating va boshlang</a></p>
+  </div>
+</section>
+
+<!-- 2. Ism -->
+<section class="screen hidden" id="s-name">
+  <div class="center">
+    <h1 class="logo"><span class="mark"><i data-icon="bulb"></i></span><span>Bilim<span class="hl">don</span></span></h1>
+    <p class="tagline" id="name-title"></p>
+    <form class="panel" id="f-name" autocomplete="off">
+      <input id="name" maxlength="16" placeholder="Ismingiz" aria-label="Ismingiz">
+      <button class="btn block">Tayyorman! <i data-icon="zap"></i></button>
+      <p class="error" id="name-err"></p>
+    </form>
+  </div>
+</section>
+
+<!-- 3. Kutish zali -->
+<section class="screen hidden" id="s-lobby">
+  <div class="center">
+    <div class="badge-icon"><i data-icon="party"></i></div>
+    <div class="big">Siz oʻyindasiz!</div>
+    <p>Ismingizni ekranda koʻryapsizmi?</p>
+    <div class="spinner"></div>
+    <p style="opacity:.8"><span class="dots">Oʻqituvchi oʻyinni boshlashini kuting</span></p>
+    <div class="pill hidden" id="lobby-team"></div>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip me-team hidden"></span></span><span class="score-chip me-score">0</span></div>
+</section>
+
+<!-- 4. Tayyorlaning -->
+<section class="screen hidden" id="s-ready">
+  <div class="center">
+    <div class="pill" id="ready-num"></div>
+    <div class="big" id="ready-text"></div>
+    <div class="countdown"><span id="ready-count">3</span></div>
+    <div class="pill hidden" id="ready-double"><i data-icon="zap"></i> Ikki baravar ball!</div>
+  </div>
+</section>
+
+<!-- 5. Savol -->
+<section class="screen hidden" id="s-question">
+  <div class="topbar"><span id="q-num"></span><span class="timer" id="q-timer-wrap"><i data-icon="clock"></i><span id="q-timer"></span></span></div>
+  <div class="qtext" id="q-text"></div>
+  <div class="answers" id="answers"></div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip me-team hidden"></span></span><span class="score-chip me-score">0</span></div>
+</section>
+
+<!-- 6. Javob yuborildi / kutish -->
+<section class="screen hidden" id="s-wait">
+  <div class="center">
+    <div class="spinner"></div>
+    <div class="big" id="wait-title">Javob qabul qilindi!</div>
+    <p id="wait-sub">Boshqalarni kutamiz… Siz tezkor ekansiz!</p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip me-team hidden"></span></span><span class="score-chip me-score">0</span></div>
+</section>
+
+<!-- 7. Natija -->
+<section class="screen hidden" id="result">
+  <div class="center">
+    <div class="badge-icon" id="r-icon"></div>
+    <div class="big" id="r-title"></div>
+    <div class="pill" id="r-points"></div>
+    <div class="pill hidden" id="r-streak"></div>
+    <p id="r-correct" style="opacity:.9"></p>
+    <p id="r-rank" style="font-size:18px;font-weight:800"></p>
+    <p id="r-team" class="hidden" style="font-weight:800"></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip me-team hidden"></span></span><span class="score-chip me-score">0</span></div>
+</section>
+
+<!-- 8. Yakun -->
+<section class="screen hidden" id="s-end">
+  <div class="center">
+    <div class="badge-icon" id="e-medal"></div>
+    <div class="rankno pop" id="e-rank"></div>
+    <div class="big" id="e-title"></div>
+    <div class="pill" id="e-score"></div>
+    <div class="pill" id="e-correct"></div>
+    <div class="pill hidden" id="e-team"></div>
+    <br><a class="btn light" href="/" style="margin-top:20px"><i data-icon="play"></i> Yana oʻynash</a>
+  </div>
+</section>
+
+<!-- Chiqarildi -->
+<section class="screen hidden" id="s-kicked">
+  <div class="center">
+    <div class="badge-icon"><i data-icon="door"></i></div>
+    <div class="big">Siz oʻyindan chiqarildingiz</div>
+    <a class="btn light" href="/" style="margin-top:20px"><i data-icon="home"></i> Bosh sahifa</a>
+  </div>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/icons.js"></script>
+<script src="/translit.js"></script>
+<script src="/common.js"></script>
+<script src="/play.js"></script>
+</body>
+</html>

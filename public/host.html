@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b3c6b">
+<title>Bilimdon — oʻqituvchi paneli</title>
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/host.css">
+</head>
+<body>
+<div class="flagbar"></div>
+
+<!-- ============ KIRISH / ROʻYXATDAN OʻTISH ============ -->
+<section class="screen hidden" id="s-auth">
+  <div class="corner-tools">
+    <button class="btn ghost small script-toggle"><i data-icon="script"></i><span class="lbl"></span></button>
+    <button class="btn ghost small icon-only theme-toggle"></button>
+  </div>
+  <div class="center">
+    <h1 class="logo"><span class="mark"><i data-icon="bulb"></i></span><span>Bilim<span class="hl">don</span></span></h1>
+    <p class="tagline">Oʻqituvchilar uchun</p>
+    <form class="panel" id="f-auth" autocomplete="on">
+      <div class="auth-tabs">
+        <button type="button" data-mode="login" class="on">Kirish</button>
+        <button type="button" data-mode="register">Roʻyxatdan oʻtish</button>
+      </div>
+      <div id="auth-name-wrap" class="hidden"><input class="left" id="auth-name" placeholder="Ism-familiyangiz" autocomplete="name" maxlength="60"></div>
+      <input class="left" id="auth-login" placeholder="Email yoki telefon raqam" autocomplete="username">
+      <input class="left" id="auth-password" type="password" placeholder="Parol" autocomplete="current-password">
+      <button class="btn brand block" id="auth-submit">Kirish</button>
+      <p class="error" id="auth-err"></p>
+    </form>
+    <p class="link">Oʻquvchimisiz? <a href="/">PIN-kod bilan oʻyinga kiring</a></p>
+  </div>
+</section>
+
+<!-- ============ KUTUBXONA ============ -->
+<section class="screen hidden" id="s-library">
+  <div class="topbar">
+    <span class="brandname"><span class="mark sm"><i data-icon="bulb"></i></span><span>Bilim<span class="hl">don</span></span></span>
+    <nav class="navtabs">
+      <button data-tab="quizzes" class="on"><i data-icon="book"></i> Viktorinalar</button>
+      <button data-tab="hw"><i data-icon="homework"></i> Uy vazifalari</button>
+    </nav>
+    <div class="row">
+      <span class="me-chip"><i data-icon="user"></i><span id="me-name"></span></span>
+      <button class="btn ghost small script-toggle"><i data-icon="script"></i><span class="lbl"></span></button>
+      <button class="btn ghost small icon-only theme-toggle"></button>
+      <button class="btn ghost small icon-only" id="btn-logout" title="Chiqish"><i data-icon="logout"></i></button>
+    </div>
+  </div>
+
+  <main class="wrap" id="tab-quizzes">
+    <div class="hero">
+      <div>
+        <h2>Mening viktorinalarim</h2>
+        <p class="muted">Viktorina yarating, sinfda jonli oʻtkazing yoki uy vazifasi sifatida yuboring.</p>
+      </div>
+      <div class="row">
+        <label class="btn ghost small"><i data-icon="upload"></i> Import<input type="file" id="import" accept=".json,application/json" hidden></label>
+        <button class="btn brand small" id="btn-new"><i data-icon="plus"></i> Yangi viktorina</button>
+      </div>
+    </div>
+    <div class="grid" id="quiz-list"></div>
+    <h2 class="section-title" id="samples-title"><i data-icon="sparkles"></i> Namunaviy viktorinalar</h2>
+    <div class="grid" id="sample-list"></div>
+  </main>
+
+  <main class="wrap narrow hidden" id="tab-hw">
+    <div class="hero">
+      <div>
+        <h2>Uy vazifalari</h2>
+        <p class="muted">Oʻquvchilar havola orqali oʻziga qulay vaqtda, oʻz tezligida topshiradi. Yangi vazifa berish uchun viktorina kartasidagi <i data-icon="homework"></i> tugmasini bosing.</p>
+      </div>
+    </div>
+    <div id="hw-list"></div>
+  </main>
+</section>
+
+<!-- ============ MUHARRIR ============ -->
+<section class="screen hidden" id="s-editor">
+  <div class="topbar">
+    <button class="btn ghost small" id="ed-back"><i data-icon="back"></i> Orqaga</button>
+    <span id="ed-status" class="muted"></span>
+    <div class="row">
+      <button class="btn ghost small" id="ed-export"><i data-icon="download"></i> Eksport</button>
+      <button class="btn green small" id="ed-save"><i data-icon="save"></i> Saqlash</button>
+    </div>
+  </div>
+  <main class="wrap narrow">
+    <div class="card">
+      <input class="title-input" id="ed-title" placeholder="Viktorina nomi" maxlength="120">
+      <input class="desc-input" id="ed-desc" placeholder="Qisqacha tavsif (ixtiyoriy)" maxlength="300">
+      <div class="row" style="margin-top:10px">
+        <label class="muted" for="ed-lang">Viktorina tili:</label>
+        <select id="ed-lang">
+          <option value="uz">Oʻzbek tili — lotin/kirill yozuvida koʻrsatiladi</option>
+          <option value="other">Boshqa til (rus, ingliz…) — yozuv oʻzgartirilmaydi</option>
+        </select>
+      </div>
+    </div>
+    <div id="ed-questions"></div>
+    <div class="row center-row">
+      <button class="btn brand" id="add-mc"><i data-icon="plus"></i> Test savoli</button>
+      <button class="btn ghost" id="add-tf"><i data-icon="plus"></i> Toʻgʻri / Notoʻgʻri</button>
+    </div>
+  </main>
+</section>
+
+<!-- ============ UY VAZIFASI ============ -->
+<section class="screen hidden" id="s-hw">
+  <div class="topbar">
+    <button class="btn ghost small" id="hw-back"><i data-icon="back"></i> Orqaga</button>
+    <span class="brandname" id="hw-title"></span>
+    <div class="row">
+      <a class="btn green small" id="hw-csv"><i data-icon="download"></i> Excel/CSV</a>
+      <button class="btn ghost small" id="hw-delete"><i data-icon="trash"></i> Oʻchirish</button>
+    </div>
+  </div>
+  <main class="wrap narrow">
+    <div class="card share">
+      <img class="qr" id="hw-qr" alt="QR-kod">
+      <div class="grow">
+        <div class="muted">Oʻquvchilarga ushbu havolani yuboring:</div>
+        <div class="share-link" id="hw-link"></div>
+        <div class="row">
+          <button class="btn brand small" id="hw-copy"><i data-icon="copy"></i> Nusxa olish</button>
+          <a class="btn small telegram" id="hw-telegram" target="_blank" rel="noopener"><i data-icon="send"></i> Telegramda ulashish</a>
+        </div>
+        <p class="muted deadline-line"><span id="hw-deadline-icon"></span><span id="hw-deadline-info"></span></p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row between"><h3 class="card-title"><i data-icon="users"></i> Natijalar</h3><span class="muted" id="hw-stats"></span></div>
+      <div id="hw-results"></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title"><i data-icon="chart"></i> Savollar tahlili</h3>
+      <p class="muted" style="margin:0 0 8px">Qaysi savollar qiyin boʻlganini koʻring — toʻgʻri javob bergan oʻquvchilar ulushi</p>
+      <div id="hw-qstats"></div>
+    </div>
+  </main>
+</section>
+
+<dialog id="hw-dialog">
+  <form class="panel" id="f-hw">
+    <h3 class="card-title"><i data-icon="homework"></i> Uy vazifasi berish</h3>
+    <p class="muted" id="hw-quiz-title" style="margin:0 0 12px"></p>
+    <label class="field" for="hw-deadline">Topshirish muddati (ixtiyoriy)</label>
+    <input type="datetime-local" id="hw-deadline" class="left">
+    <div class="row" style="margin-bottom:14px">
+      <button type="button" class="btn ghost small" data-dl="today">Bugun 23:59</button>
+      <button type="button" class="btn ghost small" data-dl="tomorrow">Ertaga 23:59</button>
+      <button type="button" class="btn ghost small" data-dl="week">1 hafta</button>
+      <button type="button" class="btn ghost small" data-dl="none">Muddatsiz</button>
+    </div>
+    <div class="row between">
+      <button type="button" class="btn ghost" id="hw-cancel">Bekor qilish</button>
+      <button class="btn green"><i data-icon="check"></i> Yaratish</button>
+    </div>
+    <p class="error" id="hw-err"></p>
+  </form>
+</dialog>
+
+<!-- ============ KUTISH ZALI ============ -->
+<section class="screen dark hidden" id="s-lobby">
+  <div class="join-banner">
+    <div class="join-info">
+      <div class="join-step"><i data-icon="link"></i> Telefoningizda oching: <b id="join-url"></b></div>
+      <div class="join-step">Oʻyin PIN-kodi:</div>
+      <div class="pin" id="lobby-pin"></div>
+    </div>
+    <img class="qr" id="qr" alt="QR-kod">
+  </div>
+  <div class="lobby-bar">
+    <div class="count"><i data-icon="users"></i> <span id="p-count">0</span> ishtirokchi</div>
+    <div class="lobby-title" id="lobby-title"></div>
+    <div class="row">
+      <select id="team-mode" title="Oʻyin rejimi">
+        <option value="0">Yakka oʻyin</option>
+        <option value="2">2 jamoa</option>
+        <option value="3">3 jamoa</option>
+        <option value="4">4 jamoa</option>
+      </select>
+      <button class="btn ghost small icon-only theme-toggle"></button>
+      <button class="btn ghost small icon-only" id="btn-sound" title="Ovoz"></button>
+      <button class="btn ghost small" id="btn-lock"></button>
+      <button class="btn light" id="btn-start" disabled>Boshlash <i data-icon="play"></i></button>
+    </div>
+  </div>
+  <div class="players" id="players"></div>
+</section>
+
+<!-- ============ TAYYORLANING ============ -->
+<section class="screen dark hidden" id="s-ready">
+  <div class="center">
+    <div class="q-counter" id="ready-num"></div>
+    <h1 class="ready-text" id="ready-text"></h1>
+    <div class="double hidden" id="ready-double"><i data-icon="zap"></i> Ikki baravar ball!</div>
+    <div class="ready-bar"><div></div></div>
+  </div>
+</section>
+
+<!-- ============ SAVOL / NATIJA ============ -->
+<section class="screen dark hidden" id="s-question">
+  <div class="q-head">
+    <span class="q-counter" id="q-num"></span>
+    <h1 class="q-text" id="q-text"></h1>
+    <button class="btn light small" id="btn-skip"><i data-icon="skip"></i> Oʻtkazish</button>
+    <button class="btn light small hidden" id="btn-next"></button>
+  </div>
+  <div class="q-middle">
+    <div class="timer-ring" id="timer-ring"><span id="timer"></span></div>
+    <div class="q-media">
+      <img id="q-img" class="hidden" alt="">
+      <div class="chart hidden" id="chart"></div>
+    </div>
+    <div class="ans-count"><b id="ans-count">0</b><span>javob</span></div>
+  </div>
+  <div class="tiles" id="tiles"></div>
+</section>
+
+<!-- ============ REYTING ============ -->
+<section class="screen dark hidden" id="s-board">
+  <div class="q-head">
+    <button class="btn light small" id="btn-end-early" style="justify-self:start"><i data-icon="flag"></i> Yakunlash</button>
+    <h1 class="q-text" id="board-title">Reyting</h1>
+    <button class="btn light small" id="btn-board-next"></button>
+  </div>
+  <div class="board" id="board"></div>
+</section>
+
+<!-- ============ YAKUN ============ -->
+<section class="screen dark hidden" id="s-end">
+  <div class="q-head">
+    <span></span>
+    <h1 class="q-text" id="end-title">Gʻoliblar</h1>
+    <span></span>
+  </div>
+  <div class="podium" id="podium"></div>
+  <div class="row center-row">
+    <button class="btn ghost" id="btn-full"><i data-icon="eye"></i> Toʻliq natijalar</button>
+    <a class="btn green" id="btn-csv"><i data-icon="download"></i> Natijalarni yuklab olish (Excel/CSV)</a>
+    <button class="btn light" id="btn-home"><i data-icon="home"></i> Bosh sahifa</button>
+  </div>
+  <div class="wrap narrow hidden" id="full-results"></div>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/icons.js"></script>
+<script src="/translit.js"></script>
+<script src="/common.js"></script>
+<script src="/host.js"></script>
+</body>
+</html>

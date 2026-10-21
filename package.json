@@ -1,0 +1,18 @@
+{
+  "name": "bilimdon",
+  "version": "1.0.0",
+  "description": "Bilimdon — Kahoot uslubidagi oʻzbekcha jonli viktorina platformasi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "reset-password": "node tools/reset-password.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

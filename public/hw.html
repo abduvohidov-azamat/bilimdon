@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0b3c6b">
+<title>Bilimdon — uy vazifasi</title>
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/style.css">
+<style>
+  .answers { flex: none; }
+  .ans { min-height: 100px; }
+  .qtext { font-size: 20px; }
+  .qimg { display: block; max-width: min(100% - 32px, 560px); max-height: 32vh; margin: 8px auto 0; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); animation: pop .5s var(--ease-back) both; }
+  .progress { height: 6px; background: rgba(255,255,255,.15); }
+  .progress div { height: 100%; background: linear-gradient(90deg, var(--gold), #ffb800); transition: width .5s var(--ease-out); border-radius: 0 99px 99px 0; }
+  .feedback { margin-top: auto; padding: 18px 16px 22px; text-align: center; font-weight: 800; border-radius: 22px 22px 0 0; animation: sheetUp .45s var(--ease-back) both; }
+  .feedback.good { background: linear-gradient(160deg, #1eb53a, #128a2b); }
+  .feedback.bad { background: linear-gradient(160deg, #e21b3c, #a5122b); }
+  .feedback .big { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; }
+  .feedback .big .ic { width: 32px; height: 32px; }
+  @keyframes sheetUp { from { transform: translateY(100%); } }
+  .panel h2 { margin: 0 0 4px; }
+  .panel p { color: var(--muted); margin: 0 0 14px; }
+  .info { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .info span { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border-radius: 99px; padding: 5px 12px; font-size: 14px; }
+  .tagline { display: inline-flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="flagbar"></div>
+
+<!-- Boshlash -->
+<section class="screen" id="s-start">
+  <div class="corner-tools">
+    <button class="btn ghost small script-toggle"><i data-icon="script"></i><span class="lbl"></span></button>
+    <button class="btn ghost small icon-only theme-toggle"></button>
+  </div>
+  <div class="center">
+    <h1 class="logo"><span class="mark"><i data-icon="bulb"></i></span><span>Bilim<span class="hl">don</span></span></h1>
+    <p class="tagline"><i data-icon="homework"></i> Uy vazifasi</p>
+    <form class="panel" id="f-start" autocomplete="off">
+      <h2 id="hw-title">Yuklanmoqda…</h2>
+      <p id="hw-desc"></p>
+      <div class="info"><span><i data-icon="list"></i><span id="hw-count"></span></span><span id="hw-deadline-wrap" class="hidden"><i data-icon="clock"></i><span id="hw-deadline"></span></span></div>
+      <div id="start-fields">
+        <input id="name" maxlength="40" placeholder="Ism va familiyangiz" aria-label="Ism va familiyangiz">
+        <button class="btn brand block">Boshlash <i data-icon="play"></i></button>
+      </div>
+      <p class="error" id="start-err"></p>
+    </form>
+    <p class="link" style="max-width:380px">Har bir savolga vaqt beriladi. Tez va toʻgʻri javob — koʻproq ball. Sahifa yopilib qolsa, havolani qayta oching — davom ettirasiz.</p>
+  </div>
+</section>
+
+<!-- Savol -->
+<section class="screen hidden" id="s-q">
+  <div class="topbar"><span id="q-num"></span><span class="timer" id="q-timer-wrap"><i data-icon="clock"></i><span id="q-timer"></span></span></div>
+  <div class="progress"><div id="q-progress"></div></div>
+  <div class="qtext" id="q-text"></div>
+  <img class="qimg hidden" id="q-img" alt="">
+  <div class="answers" id="answers"></div>
+  <div class="feedback hidden" id="feedback">
+    <div class="big" id="fb-title"></div>
+    <div id="fb-sub"></div>
+    <button class="btn light" id="btn-next" style="margin-top:14px"></button>
+  </div>
+</section>
+
+<!-- Yakun -->
+<section class="screen hidden" id="s-done">
+  <div class="center">
+    <div class="badge-icon gold"><i data-icon="cap"></i></div>
+    <div class="big">Vazifa topshirildi!</div>
+    <div class="pill" id="d-score"></div>
+    <div class="pill" id="d-correct"></div>
+    <p id="d-rank" style="font-size:18px;font-weight:800"></p>
+    <p style="opacity:.85">Natijangiz oʻqituvchiga yuborildi <i data-icon="check"></i></p>
+  </div>
+</section>
+
+<script src="/icons.js"></script>
+<script src="/translit.js"></script>
+<script src="/common.js"></script>
+<script src="/hw.js"></script>
+</body>
+</html>

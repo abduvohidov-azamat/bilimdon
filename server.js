@@ -283,6 +283,7 @@ function baseUrl(req) {
   return `${req.protocol}://${req.get('host')}`;
 }
 app.get('/api/info', (req, res) => res.json({ joinUrl: baseUrl(req) }));
+app.get('/healthz', (req, res) => res.json({ ok: true }));
 app.get('/api/qr', async (req, res) => {
   try {
     const svg = await QRCode.toString(String(req.query.text || '').slice(0, 500), { type: 'svg', margin: 1 });

@@ -7,6 +7,9 @@ const os = require('os');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 const { Server } = require('socket.io');
+const createTeamGames = require('./teamgame');
+const zakovatRules = require('./zakovat').rules;
+const boardRules = require('./board').rules;
 
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
@@ -66,6 +69,12 @@ const save = {
   assignments: () => writeJson(FILES.assignments, assignments),
 };
 if (!fs.existsSync(FILES.quizzes)) save.quizzes();
+// Yangi namunaviy viktorinalar (masalan, Zakovat) mavjud bazaga ham qoʻshiladi
+const missingSamples = require('./seed').filter(s => !quizzes.some(q => q.id === s.id));
+if (missingSamples.length) {
+  quizzes.push(...missingSamples);
+  save.quizzes();
+}
 
 const newId = () => crypto.randomBytes(6).toString('hex');
 
@@ -179,13 +188,62 @@ app.get('/api/me', auth, (req, res) => res.json(publicUser(req.user)));
 const canRead = (q, u) => !q.ownerId || q.ownerId === u.id;
 const canEdit = (q, u) => q.ownerId === u.id;
 
+const isZakovat = q => q.mode === 'zakovat';
+const isBoard = q => q.mode === 'board'; // Oʻz oʻyini
+const isTeamMode = q => isZakovat(q) || isBoard(q);
+
+// Oʻz oʻyini doskasi: values — ustunlar qiymati (100–500), topics — qatorlar (mavzular), har birida values.length ta katakcha
+const BOARD_SPECIALS = ['', 'cat', 'luck'];
+const boardCellPlayable = c => c.special === 'luck' || !!String(c.text || '').trim();
+function validateBoard(q) {
+  const { values, topics } = q;
+  if (!Array.isArray(values) || values.length < 3 || values.length > 6) return 'Qiymatlar soni 3–6 ta boʻlishi kerak';
+  if (values.some(v => !Number.isInteger(+v) || +v <= 0 || +v > 100000)) return 'Qiymatlar musbat butun son boʻlishi kerak';
+  if (!Array.isArray(topics) || topics.length < 2 || topics.length > 6) return 'Mavzular soni 2–6 ta boʻlishi kerak';
+  for (const [i, t] of topics.entries()) {
+    if (!t || !String(t.name || '').trim()) return `${i + 1}-mavzu nomi kiritilmagan`;
+    if (!Array.isArray(t.cells) || t.cells.length !== values.length) return `«${t.name}» mavzusida katakchalar soni notoʻgʻri`;
+    for (const [j, c] of t.cells.entries()) {
+      const where = `«${t.name}» — ${values[j]}`;
+      if (!c || !BOARD_SPECIALS.includes(c.special || '')) return `${where}: notoʻgʻri belgi`;
+      if (c.special !== 'luck' && String(c.text || '').trim() && !String(c.answer || '').trim()) return `${where}: toʻgʻri javob kiritilmagan`;
+      if (c.special === 'cat' && !String(c.text || '').trim()) return `${where}: «Mushuk qopda» katakchasiga savol yozing`;
+    }
+  }
+  if (!topics.some(t => t.cells.some(boardCellPlayable))) return 'Kamida bitta savol boʻlishi kerak';
+  return null;
+}
+
+function cleanBoard(q) {
+  return {
+    values: q.values.map(Number),
+    topics: q.topics.map(t => ({
+      name: String(t.name).trim().slice(0, 40),
+      cells: t.cells.map(c => ({
+        text: String(c.text || '').trim().slice(0, 400),
+        image: String(c.image || '').trim().slice(0, 1000),
+        answer: String(c.answer || '').trim().slice(0, 120),
+        comment: String(c.comment || '').trim().slice(0, 400),
+        special: c.special || '',
+      })),
+    })),
+  };
+}
+
+const questionCount = q => (isBoard(q) ? q.topics.reduce((n, t) => n + t.cells.filter(boardCellPlayable).length, 0) : q.questions.length);
+
 function validateQuiz(q) {
   if (!q || typeof q.title !== 'string' || !q.title.trim()) return 'Viktorina nomi kiritilmagan';
+  if (isBoard(q)) return validateBoard(q);
   if (!Array.isArray(q.questions) || q.questions.length === 0) return 'Kamida bitta savol boʻlishi kerak';
   if (q.questions.length > 100) return 'Savollar soni 100 tadan oshmasin';
   for (const [i, s] of q.questions.entries()) {
     const n = i + 1;
-    if (!s.text || !String(s.text).trim()) return `${n}-savol matni boʻsh`;
+    if (!s || !s.text || !String(s.text).trim()) return `${n}-savol matni boʻsh`;
+    if (isZakovat(q)) {
+      if (!String(s.answer || '').trim()) return `${n}-savolda toʻgʻri javob kiritilmagan`;
+      continue;
+    }
     if (!Array.isArray(s.options) || s.options.length < 2 || s.options.length > 4) return `${n}-savolda 2–4 ta javob boʻlishi kerak`;
     if (s.options.some(o => !String(o).trim())) return `${n}-savolda boʻsh javob bor`;
     if (!Array.isArray(s.correct) || s.correct.length === 0) return `${n}-savolda toʻgʻri javob belgilanmagan`;
@@ -194,13 +252,34 @@ function validateQuiz(q) {
   return null;
 }
 
+// "neft, qora oltin" yoki ["neft", "qora oltin"] → ["neft", "qora oltin"]
+const answerList = v => (Array.isArray(v) ? v : String(v || '').split(/[,;]/))
+  .map(x => String(x).trim().slice(0, 80)).filter(Boolean).slice(0, 12);
+
+// Zakovat savoli: ochiq javob, qoʻshimcha qabul qilinadigan / qilinmaydigan javoblar, izoh va manba
+function cleanZakovatQuestion(s) {
+  return {
+    type: 'open',
+    text: String(s.text).trim().slice(0, 800),
+    image: String(s.image || '').trim().slice(0, 1000),
+    answer: String(s.answer).trim().slice(0, 80),
+    accept: answerList(s.accept),
+    reject: answerList(s.reject),
+    comment: String(s.comment || '').trim().slice(0, 600),
+    source: String(s.source || '').trim().slice(0, 200),
+    time: [20, 30, 60].includes(+s.time) ? +s.time : 60,
+  };
+}
+
 function cleanQuiz(q) {
   return {
     title: q.title.trim().slice(0, 120),
     description: String(q.description || '').trim().slice(0, 300),
     // 'uz' — lotin/kirill oʻgiriladi; 'other' — rus, ingliz va boshqa tillar (oʻgirilmaydi)
     lang: q.lang === 'other' ? 'other' : 'uz',
-    questions: q.questions.map(s => ({
+    mode: isZakovat(q) ? 'zakovat' : isBoard(q) ? 'board' : 'classic',
+    ...(isBoard(q) ? cleanBoard(q) : {}),
+    questions: isBoard(q) ? undefined : q.questions.map(s => isZakovat(q) ? cleanZakovatQuestion(s) : {
       type: s.type === 'truefalse' ? 'truefalse' : 'multiple',
       text: String(s.text).trim().slice(0, 300),
       image: String(s.image || '').trim().slice(0, 1000),
@@ -208,14 +287,14 @@ function cleanQuiz(q) {
       correct: [...new Set(s.correct.map(Number))],
       time: [5, 10, 20, 30, 60, 90, 120].includes(+s.time) ? +s.time : 20,
       points: [0, 1, 2].includes(+s.points) ? +s.points : 1,
-    })),
+    }),
   };
 }
 
 app.get('/api/quizzes', auth, (req, res) => {
   const list = quizzes.filter(q => canRead(q, req.user));
   list.sort((a, b) => !!a.ownerId === !!b.ownerId ? b.updatedAt - a.updatedAt : a.ownerId ? -1 : 1);
-  res.json(list.map(q => ({ id: q.id, title: q.title, description: q.description, count: q.questions.length, updatedAt: q.updatedAt, sample: !q.ownerId, lang: q.lang || 'uz' })));
+  res.json(list.map(q => ({ id: q.id, title: q.title, description: q.description, count: questionCount(q), updatedAt: q.updatedAt, sample: !q.ownerId, lang: q.lang || 'uz', mode: q.mode || 'classic' })));
 });
 app.get('/api/quizzes/:id', auth, (req, res) => {
   const q = quizzes.find(x => x.id === req.params.id);
@@ -320,7 +399,7 @@ function sendCsv(res, name, csv) {
 // ---------- Jonli oʻyin ----------
 // state: lobby → getready → question → reveal → leaderboard → (getready …) → ended
 
-const games = new Map(); // pin → game
+const games = new Map(); // pin → game (oddiy oʻyin yoki jamoaviy oʻyin — game.teamGame)
 
 function makePin() {
   let pin;
@@ -493,6 +572,7 @@ function syncPlayer(game, p, socket) {
 app.get('/api/games/:pin/results.csv', (req, res) => {
   const game = games.get(req.params.pin);
   if (!game || req.query.token !== game.hostToken) return res.status(404).send('Topilmadi');
+  if (game.teamGame) return sendCsv(res, `${game.kind === 'board' ? 'oz-oyini' : 'zakovat'}-${game.pin}.csv`, teamGames.csv(game));
   const rows = ranking(game).map(r => {
     const p = game.players.get(r.id);
     return { ...r, history: p.history, extra: game.teamCount ? [p.team != null ? TEAM_NAMES[p.team] : ''] : [] };
@@ -508,13 +588,26 @@ function shuffle(arr) {
   return arr;
 }
 
+// Yangi oʻyinchi ismini tekshirish (oddiy va jamoaviy oʻyinlar uchun bir xil)
+function cleanPlayerName(game, name) {
+  const clean = String(name || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+  if (clean.length < 2) return { error: 'Ism kamida 2 ta harf boʻlsin' };
+  if (livePlayers(game).some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Bu ism band, boshqasini tanlang' };
+  return { name: clean };
+}
+
+const teamGames = createTeamGames({ io, games, makePin, newId, cleanPlayerName, kinds: { zakovat: zakovatRules, board: boardRules } });
+
 io.on('connection', socket => {
+  teamGames.register(socket);
+
   // --- Boshlovchi (oʻqituvchi) ---
-  socket.on('host:create', ({ quizId }, ack) => {
+  socket.on('host:create', ({ quizId, ...opts }, ack) => {
     const user = userFromCookie(socket.handshake.headers.cookie);
     if (!user) return ack({ error: 'Iltimos, tizimga kiring' });
     const quiz = quizzes.find(q => q.id === quizId && canRead(q, user));
     if (!quiz) return ack({ error: 'Viktorina topilmadi' });
+    if (isTeamMode(quiz)) return teamGames.create(socket, user, quiz, opts, ack);
     const game = {
       pin: makePin(),
       hostToken: crypto.randomBytes(16).toString('hex'),
@@ -537,6 +630,7 @@ io.on('connection', socket => {
   socket.on('host:rejoin', ({ pin, hostToken }, ack) => {
     const game = games.get(pin);
     if (!game || game.hostToken !== hostToken) return ack({ error: 'Oʻyin topilmadi' });
+    if (game.teamGame) return teamGames.hostRejoin(game, socket, ack);
     game.hostSocketId = socket.id;
     socket.data.hostPin = pin;
     ack({ ok: true, state: game.state, title: game.quiz.title, raw: game.quiz.lang === 'other', players: publicPlayers(game), teamCount: game.teamCount, locked: game.locked });
@@ -547,7 +641,7 @@ io.on('connection', socket => {
 
   const hostGame = () => {
     const game = games.get(socket.data.hostPin);
-    return game && game.hostSocketId === socket.id ? game : null;
+    return game && game.hostSocketId === socket.id && !game.teamGame ? game : null;
   };
 
   socket.on('host:teams', n => {
@@ -616,6 +710,7 @@ io.on('connection', socket => {
   socket.on('player:join', ({ pin, name, playerId }, ack) => {
     const game = games.get(String(pin).trim());
     if (!game) return ack({ error: 'Bunday PIN-kodli oʻyin topilmadi' });
+    if (game.teamGame) return teamGames.join(game, socket, { name, playerId }, ack);
 
     // Qayta ulanish
     const existing = playerId && game.players.get(playerId);
@@ -632,12 +727,11 @@ io.on('connection', socket => {
 
     if (game.state !== 'lobby') return ack({ error: 'Oʻyin allaqachon boshlangan' });
     if (game.locked) return ack({ error: 'Oʻyin qulflangan' });
-    const clean = String(name || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
-    if (clean.length < 2) return ack({ error: 'Ism kamida 2 ta harf boʻlsin' });
-    if (livePlayers(game).some(p => p.name.toLowerCase() === clean.toLowerCase())) return ack({ error: 'Bu ism band, boshqasini tanlang' });
+    const checked = cleanPlayerName(game, name);
+    if (checked.error) return ack(checked);
     if (game.players.size >= 200) return ack({ error: 'Oʻyin toʻla' });
 
-    const p = { id: newId(), name: clean, score: 0, streak: 0, correctCount: 0, history: [], socketId: socket.id, connected: true, kicked: false, team: null };
+    const p = { id: newId(), name: checked.name, score: 0, streak: 0, correctCount: 0, history: [], socketId: socket.id, connected: true, kicked: false, team: null };
     game.players.set(p.id, p);
     socket.data.player = { pin: game.pin, id: p.id };
     socket.join(`players:${game.pin}`);
@@ -650,7 +744,7 @@ io.on('connection', socket => {
     const ref = socket.data.player;
     const game = ref && games.get(ref.pin);
     const p = game && game.players.get(ref.id);
-    if (!p || p.kicked || game.state !== 'question' || game.answers.has(p.id)) return ack && ack({ ok: false });
+    if (!p || p.kicked || game.teamGame || game.state !== 'question' || game.answers.has(p.id)) return ack && ack({ ok: false });
     const q = currentQ(game);
     choice = Number(choice);
     if (!Number.isInteger(choice) || choice < 0 || choice >= q.options.length) return ack && ack({ ok: false });
@@ -667,6 +761,7 @@ io.on('connection', socket => {
     const game = ref && games.get(ref.pin);
     const p = game && game.players.get(ref.id);
     if (p && p.socketId === socket.id) {
+      if (game.teamGame) return teamGames.disconnect(game, p);
       p.connected = false;
       p.socketId = null;
       toHost(game, 'lobby:players', publicPlayers(game));
@@ -697,6 +792,7 @@ function hwRanking(a) {
 app.post('/api/assignments', auth, (req, res) => {
   const quiz = quizzes.find(q => q.id === req.body.quizId && canRead(q, req.user));
   if (!quiz) return res.status(404).json({ error: 'Viktorina topilmadi' });
+  if (isTeamMode(quiz)) return res.status(400).json({ error: 'Jamoaviy oʻyinni faqat sinfda jonli oʻtkazish mumkin' });
   const deadline = req.body.deadline ? Number(req.body.deadline) : null;
   if (deadline !== null && (!Number.isFinite(deadline) || deadline < Date.now())) return res.status(400).json({ error: 'Muddat kelajakdagi vaqt boʻlishi kerak' });
   const a = {

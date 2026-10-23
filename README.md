@@ -66,6 +66,52 @@ Sahifa tasodifan yangilansa yoki internet uzilsa — oʻqituvchi ham, oʻquvchil
 
 > ⚠️ Uy vazifasi telefondan **uyda** ochilishi uchun platforma internetga joylangan boʻlishi kerak (7-qadam). Kompyuteringizda ishlayotganda havola faqat maktab Wi-Fi tarmogʻida ochiladi.
 
+## Zakovat rejimi 🧠
+
+Jamoaviy intellektual oʻyin — haqiqiy “Zakovat” qoidalari asosida. Variantli javob yoʻq: jamoa javobni oʻzi yozadi, oʻqituvchi baholaydi. Toʻgʻri javob — **1 ball**, tezlik ahamiyatsiz.
+
+**Savol tuzish.** Kutubxonada **“Yangi Zakovat”** tugmasini bosing. Har bir savolga:
+- **Javob** — asosiy toʻgʻri javob;
+- **Sanaladi** — boshqa toʻgʻri variantlar (vergul bilan), masalan `Xumo, Humo qushi`;
+- **Sanalmaydi** — qabul qilinmaydigan javoblar;
+- **Izoh** va **Manba** — javob eʼlon qilingach ekranda chiqadi;
+- vaqt: 1 daqiqa yoki blits (30 / 20 soniya). Rasm (tarqatma material) ham qoʻshsa boʻladi.
+
+Namunaviy “Zakovat: namunaviy oʻyin” (8 ta savol) bilan darhol sinab koʻrishingiz mumkin.
+
+**Oʻyin oʻtkazish.**
+1. Kartadagi **▶ Boshlash** → jamoalar sonini (2–8) va boʻlinish usulini tanlang: *Avtomatik* (teng taqsimlanadi) yoki *Oʻzi tanlaydi* (har bir oʻquvchi telefonida jamoasini tanlaydi).
+2. Oʻquvchilar odatdagidek PIN-kod bilan kiradi. Har jamoaning birinchi aʼzosi — **sardor** ⭐. Oʻqituvchi istalgan oʻquvchini sardor qilishi yoki chiqarishi mumkin. Kech qolganlar oʻyin davomida ham qoʻshila oladi.
+3. Savol ekranda chiqadi — ovoz chiqarib oʻqing va **“Vaqt ketdi”** ni bosing. Gong chalinadi, 1 daqiqa muhokama boshlanadi (50-soniyada ogohlantirish).
+4. Har bir aʼzo telefonidan **taklif** yozadi — takliflar faqat oʻz jamoasiga koʻrinadi. **Sardor** yakuniy javobni yuboradi (vaqt tugaguncha oʻzgartirishi mumkin). Vaqt tugagach yana **10 soniya** javob yuborish uchun beriladi.
+5. **Baholash:** bir xil javoblar guruhlanadi. Lotin/kirill, katta-kichik harf va kichik imlo xatolari (`Toshknet` → `Toshkent`) avtomatik hisobga olinadi. Oʻqituvchi faqat noaniq javoblarni ✓ / ✗ bilan baholaydi.
+6. **Javobni eʼlon qilish** → toʻgʻri javob, izoh va topgan jamoalar → **natijalar jadvali** (+/− koʻrinishida).
+7. **Apellyatsiya:** jadvaldagi katakchani bosib natijani tuzatish mumkin.
+8. Oxirida — gʻolib jamoalar va **Excel/CSV**: jamoalar jadvali, har bir javob, hamda har bir oʻquvchi nechta **toʻgʻri taklif** bergani (kim faol ishlaganini koʻrish uchun).
+
+> Zakovat faqat sinfda jonli oʻtkaziladi (uy vazifasi sifatida berilmaydi).
+
+## Oʻz oʻyini 🟦
+
+“Своя игра” (Jeopardy) ning maktab varianti. Katta ekranda doska: qatorlar — **mavzular** (masalan, Koinot, Tarix), ustunlar — **ballar** (100–500). Jamoalar **navbat bilan** katakcha tanlaydi va javobni **ovoz chiqarib** aytadi.
+
+**Doska tuzish.** Kutubxonada **“Yangi Oʻz oʻyini”** → 2–6 ta mavzu, har birida 5 ta savol (savol, javob, izoh, rasm). Ballar: 100–500, 200–1000, 10–50 yoki 1–5. Boʻsh qoldirilgan katakcha doskada koʻrinmaydi. Maxsus katakchalar:
+- 🐱 **Mushuk qopda** — jamoa savolni **boshqa jamoaga** beradi; xato javob uchun ball ayirilmaydi;
+- 🎁 **Omad** — savol yoʻq, navbatdagi jamoa darhol ball oladi.
+
+Namunaviy “Oʻz oʻyini: Bilimlar bellashuvi” (6 mavzu × 5 savol) bilan darhol sinab koʻring.
+
+**Qoidalar** (oʻyinni ochishda sozlanadi):
+1. Navbatdagi jamoa katakcha tanlaydi → savol ochiladi → jamoa 30 soniya maslahatlashib, javob beradi.
+2. **Toʻgʻri** — +ball. **Notoʻgʻri** — −ball va savol **keyingi jamoaga oʻtadi** (ular ham xato qilsa ball yoʻqotadi — sozlamada oʻchirish mumkin).
+3. **Hech kim** — savol yopiladi, toʻgʻri javob va izoh koʻrsatiladi.
+4. Navbat keyingi jamoaga oʻtadi (yoki — sozlamaga koʻra — toʻgʻri javob bergan jamoaga).
+5. Barcha katakchalar ochilgach (yoki **Yakunlash** bosilganda) — gʻoliblar, natijalar jadvali va **Excel/CSV**.
+
+**Oʻqituvchi pulti 📱.** Katta ekrandagi **Pult** tugmasini bosing va QR-kodni telefoningiz bilan skanerlang. Telefonda **toʻgʻri javob** koʻrinadi (katta ekranda emas!) va oʻyinni sinf boʻylab yurib boshqarasiz: katakcha ochish, ✓ / ✗, mushuk qopda, davom etish. Pultsiz ham boʻladi — katta ekrandagi **👁 Javob** tugmasi bosib turilgandagina javobni koʻrsatadi.
+
+Oʻquvchilar telefonida: kimning navbatligi (“Sizning navbatingiz!”), savol matni, jamoa bali va oʻrni.
+
 ## 6-qadam. Lotin / Kirill
 
 Har bir sahifada **Кирилл / Lotin** tugmasi bor. Har bir foydalanuvchi oʻzi tanlaydi — tanlov eslab qolinadi. Savollar ham oʻgiriladi (formulalar, raqamlar, inglizcha soʻzlar va “Boshqa til” viktorinalari oʻzgarmaydi).

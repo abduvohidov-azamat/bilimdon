@@ -60,6 +60,8 @@
       </div>
       <div class="row">
         <label class="btn ghost small"><i data-icon="upload"></i> Import<input type="file" id="import" accept=".json,application/json" hidden></label>
+        <button class="btn ghost small" id="btn-new-board" title="Mavzular va qiymatlar doskasi: jamoalar navbat bilan katakcha tanlaydi"><i data-icon="grid"></i> Yangi Oʻz oʻyini</button>
+        <button class="btn ghost small" id="btn-new-zk" title="Jamoaviy intellektual oʻyin: ochiq savollar, 1 daqiqa muhokama"><i data-icon="brain"></i> Yangi Zakovat</button>
         <button class="btn brand small" id="btn-new"><i data-icon="plus"></i> Yangi viktorina</button>
       </div>
     </div>
@@ -91,6 +93,7 @@
   </div>
   <main class="wrap narrow">
     <div class="card">
+      <span class="zk-badge light hidden" id="ed-mode"></span>
       <input class="title-input" id="ed-title" placeholder="Viktorina nomi" maxlength="120">
       <input class="desc-input" id="ed-desc" placeholder="Qisqacha tavsif (ixtiyoriy)" maxlength="300">
       <div class="row" style="margin-top:10px">
@@ -100,11 +103,22 @@
           <option value="other">Boshqa til (rus, ingliz…) — yozuv oʻzgartirilmaydi</option>
         </select>
       </div>
+      <div class="row hidden" id="ed-board-opts" style="margin-top:10px">
+        <label class="muted" for="ed-values">Ballar:</label>
+        <select id="ed-values">
+          <option value="100,200,300,400,500">100 · 200 · 300 · 400 · 500</option>
+          <option value="200,400,600,800,1000">200 · 400 · 600 · 800 · 1000</option>
+          <option value="10,20,30,40,50">10 · 20 · 30 · 40 · 50</option>
+          <option value="1,2,3,4,5">1 · 2 · 3 · 4 · 5</option>
+        </select>
+      </div>
     </div>
     <div id="ed-questions"></div>
     <div class="row center-row">
       <button class="btn brand" id="add-mc"><i data-icon="plus"></i> Test savoli</button>
       <button class="btn ghost" id="add-tf"><i data-icon="plus"></i> Toʻgʻri / Notoʻgʻri</button>
+      <button class="btn brand hidden" id="add-zk"><i data-icon="plus"></i> Zakovat savoli</button>
+      <button class="btn brand hidden" id="add-topic"><i data-icon="plus"></i> Mavzu qoʻshish</button>
     </div>
   </main>
 </section>
@@ -162,6 +176,73 @@
     </div>
     <p class="error" id="hw-err"></p>
   </form>
+</dialog>
+
+<dialog id="zk-dialog">
+  <form class="panel" id="f-zk">
+    <h3 class="card-title"><i data-icon="brain"></i> Zakovat oʻyini</h3>
+    <p class="muted" id="zk-quiz-title" style="margin:0 0 12px"></p>
+    <label class="field" for="zk-teams-n">Jamoalar soni</label>
+    <select id="zk-teams-n" class="left">
+      <option value="2">2 jamoa</option><option value="3">3 jamoa</option><option value="4" selected>4 jamoa</option>
+      <option value="5">5 jamoa</option><option value="6">6 jamoa</option><option value="7">7 jamoa</option><option value="8">8 jamoa</option>
+    </select>
+    <label class="field">Oʻquvchilar jamoaga qanday boʻlinadi?</label>
+    <label class="zk-opt"><input type="radio" name="zk-pick" value="auto" checked><span><b>Avtomatik</b><small>Teng boʻlinadi — tez va adolatli</small></span></label>
+    <label class="zk-opt"><input type="radio" name="zk-pick" value="choose"><span><b>Oʻzi tanlaydi</b><small>Partada guruh boʻlib oʻtirganda qulay</small></span></label>
+    <div class="row between" style="margin-top:14px">
+      <button type="button" class="btn ghost" id="zk-cancel">Bekor qilish</button>
+      <button class="btn green"><i data-icon="play"></i> Ochish</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="bd-dialog">
+  <form class="panel" id="f-bd">
+    <h3 class="card-title"><i data-icon="grid"></i> Oʻz oʻyini</h3>
+    <p class="muted" id="bd-quiz-title" style="margin:0 0 12px"></p>
+    <div class="bd-form-row">
+      <div>
+        <label class="field" for="bd-teams-n">Jamoalar soni</label>
+        <select id="bd-teams-n" class="left">
+          <option value="2">2 jamoa</option><option value="3" selected>3 jamoa</option><option value="4">4 jamoa</option>
+          <option value="5">5 jamoa</option><option value="6">6 jamoa</option><option value="7">7 jamoa</option><option value="8">8 jamoa</option>
+        </select>
+      </div>
+      <div>
+        <label class="field" for="bd-time">Javob uchun vaqt</label>
+        <select id="bd-time" class="left">
+          <option value="15">15 soniya</option><option value="30" selected>30 soniya</option><option value="60">1 daqiqa</option>
+        </select>
+      </div>
+    </div>
+    <label class="field">Oʻquvchilar jamoaga qanday boʻlinadi?</label>
+    <label class="zk-opt"><input type="radio" name="bd-pick" value="auto" checked><span><b>Avtomatik</b><small>Teng boʻlinadi — tez va adolatli</small></span></label>
+    <label class="zk-opt"><input type="radio" name="bd-pick" value="choose"><span><b>Oʻzi tanlaydi</b><small>Partada guruh boʻlib oʻtirganda qulay</small></span></label>
+    <label class="field">Qoidalar</label>
+    <label class="bd-check"><input type="checkbox" id="bd-pass" checked><span>Notoʻgʻri javobdan keyin savol <b>keyingi jamoaga</b> oʻtadi</span></label>
+    <label class="bd-check"><input type="checkbox" id="bd-penalty" checked><span>Savol oʻtgan jamoa ham xato qilsa <b>ball yoʻqotadi</b></span></label>
+    <label class="field" for="bd-turn">Keyingi katakchani kim tanlaydi?</label>
+    <select id="bd-turn" class="left">
+      <option value="order">Navbat bilan — har bir jamoaga teng imkoniyat</option>
+      <option value="winner">Toʻgʻri javob bergan jamoa</option>
+    </select>
+    <div class="row between" style="margin-top:14px">
+      <button type="button" class="btn ghost" id="bd-cancel">Bekor qilish</button>
+      <button class="btn green"><i data-icon="play"></i> Ochish</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="remote-dialog">
+  <div class="panel remote-panel">
+    <h3 class="card-title"><i data-icon="phone"></i> Oʻqituvchi pulti</h3>
+    <p class="muted">Telefoningiz bilan skanerlang. Telefonda <b>toʻgʻri javoblar</b> koʻrinadi va oʻyinni sinf boʻylab yurib boshqarasiz — katta ekranda javob chiqmaydi.</p>
+    <img class="qr" id="remote-qr" alt="QR-kod">
+    <div class="share-link" id="remote-link"></div>
+    <p class="muted" style="font-size:13px">Telefon kompyuter bilan bir xil Wi-Fi tarmogʻida boʻlsin. Havolani oʻquvchilarga koʻrsatmang.</p>
+    <button type="button" class="btn brand block" id="remote-close">Yopish</button>
+  </div>
 </dialog>
 
 <!-- ============ KUTISH ZALI ============ -->
@@ -248,10 +329,170 @@
   <div class="wrap narrow hidden" id="full-results"></div>
 </section>
 
+<!-- ============ ZAKOVAT: KUTISH ZALI ============ -->
+<section class="screen dark hidden" id="s-zk-lobby">
+  <div class="join-banner">
+    <div class="join-info">
+      <div class="join-step"><i data-icon="link"></i> Telefoningizda oching: <b id="zk-url"></b></div>
+      <div class="join-step">Oʻyin PIN-kodi:</div>
+      <div class="pin" id="zk-pin"></div>
+    </div>
+    <img class="qr" id="zk-qr" alt="QR-kod">
+  </div>
+  <div class="lobby-bar">
+    <div class="count"><i data-icon="users"></i> <span id="zk-count">0</span> oʻyinchi</div>
+    <div class="lobby-title"><span class="zk-badge" id="zk-kind-badge"></span> <span id="zk-title"></span></div>
+    <div class="row">
+      <button class="btn ghost small hidden remote-open" id="zk-remote-btn" title="Telefonni oʻqituvchi pultiga aylantirish"><i data-icon="phone"></i> Pult</button>
+      <button class="btn ghost small icon-only theme-toggle"></button>
+      <button class="btn ghost small icon-only sound-toggle" title="Ovoz"></button>
+      <button class="btn ghost small" id="zk-lock"></button>
+      <button class="btn light" id="zk-start" disabled>Boshlash <i data-icon="play"></i></button>
+    </div>
+  </div>
+  <p class="zk-hint" id="zk-hint-cap"><i data-icon="star"></i> — sardor (jamoa javobini yuboradi). Oʻyinchi yonidagi tugmalar: sardor qilish yoki chiqarish.</p>
+  <div class="zk-unassigned hidden" id="zk-unassigned"></div>
+  <div class="zk-teams" id="zk-teams"></div>
+</section>
+
+<!-- ============ ZAKOVAT: SAVOL ============ -->
+<section class="screen dark hidden" id="s-zk-q">
+  <div class="q-head">
+    <span class="q-counter" id="zkq-num"></span>
+    <span class="zk-badge"><i data-icon="brain"></i> Zakovat</span>
+    <span>
+      <button class="btn light small" id="zk-go"><i data-icon="clock"></i> Vaqt ketdi</button>
+      <button class="btn light small hidden" id="zk-skip"><i data-icon="skip"></i> Javoblarni yigʻish</button>
+    </span>
+  </div>
+  <div class="zk-stage">
+    <div class="zk-qtext" id="zkq-text"></div>
+    <img class="zk-img hidden" id="zkq-img" alt="">
+    <div class="zk-timer-row">
+      <div class="timer-ring" id="zk-ring"><span id="zk-timer"></span></div>
+      <div class="zk-status" id="zk-status"></div>
+    </div>
+    <div class="zk-sent" id="zk-sent"></div>
+  </div>
+</section>
+
+<!-- ============ ZAKOVAT: BAHOLASH ============ -->
+<section class="screen dark hidden" id="s-zk-judge">
+  <div class="q-head">
+    <span class="q-counter" id="zkj-num"></span>
+    <h1 class="q-text">Javoblarni baholash</h1>
+    <button class="btn light small" id="zk-confirm"></button>
+  </div>
+  <div class="wrap narrow">
+    <div class="zk-key"><span>Toʻgʻri javob:</span> <b id="zkj-answer"></b><div class="zk-key-sub" id="zkj-accept"></div></div>
+    <div id="zk-groups"></div>
+    <p class="zk-missing" id="zkj-missing"></p>
+  </div>
+</section>
+
+<!-- ============ ZAKOVAT: TOʻGʻRI JAVOB ============ -->
+<section class="screen dark hidden" id="s-zk-reveal">
+  <div class="q-head">
+    <span class="q-counter" id="zkr-num"></span>
+    <h1 class="q-text">Toʻgʻri javob</h1>
+    <button class="btn light small" id="zk-to-table"><i data-icon="grid"></i> Jadval</button>
+  </div>
+  <div class="center zk-reveal">
+    <div class="zk-answer" id="zkr-answer"></div>
+    <div class="zk-accept" id="zkr-accept"></div>
+    <div class="zk-comment hidden" id="zkr-comment"></div>
+    <div class="zk-source" id="zkr-source"></div>
+    <div class="zk-found" id="zkr-found"></div>
+  </div>
+</section>
+
+<!-- ============ ZAKOVAT: JADVAL ============ -->
+<section class="screen dark hidden" id="s-zk-table">
+  <div class="q-head">
+    <button class="btn light small" id="zk-end-early" style="justify-self:start"><i data-icon="flag"></i> Yakunlash</button>
+    <h1 class="q-text" id="zkt-title">Natijalar</h1>
+    <button class="btn light small" id="zk-next"></button>
+  </div>
+  <div class="wrap zk-table-wrap" id="zk-table"></div>
+  <p class="zk-hint">Apellyatsiya: katakchani bosib natijani oʻzgartirish mumkin</p>
+</section>
+
+<!-- ============ OʻZ OʻYINI: DOSKA ============ -->
+<section class="screen dark hidden" id="s-bd-board">
+  <div class="bd-top">
+    <div class="bd-scores" id="bd-scores"></div>
+    <div class="row">
+      <button class="btn ghost small remote-open" title="Telefonni oʻqituvchi pultiga aylantirish"><i data-icon="phone"></i> Pult</button>
+      <button class="btn ghost small icon-only sound-toggle" title="Ovoz"></button>
+      <button class="btn ghost small" id="bd-end-early"><i data-icon="flag"></i> Yakunlash</button>
+    </div>
+  </div>
+  <div class="bd-turn" id="bd-turnline"></div>
+  <div class="bd-grid" id="bd-grid"></div>
+</section>
+
+<!-- ============ OʻZ OʻYINI: SAVOL ============ -->
+<section class="screen dark hidden" id="s-bd-q">
+  <div class="q-head">
+    <span class="q-counter" id="bdq-tag"></span>
+    <span class="bd-answering" id="bdq-team"></span>
+    <span><button class="btn light small hidden" id="bdq-peek" title="Bosib turing — javob faqat siz koʻrguncha chiqadi"><i data-icon="eye"></i> Javob</button></span>
+  </div>
+  <div class="zk-stage">
+    <div class="bd-special hidden" id="bdq-special"></div>
+    <div class="zk-qtext" id="bdq-text"></div>
+    <img class="zk-img hidden" id="bdq-img" alt="">
+    <div class="zk-timer-row" id="bdq-timer-row">
+      <div class="timer-ring" id="bd-ring"><span id="bd-timer"></span></div>
+      <div class="bd-judge" id="bd-judge">
+        <button class="btn bd-ok" data-v="1"><i data-icon="check"></i> Toʻgʻri</button>
+        <button class="btn bd-no" data-v="0"><i data-icon="x"></i> Notoʻgʻri</button>
+        <button class="btn ghost small" id="bd-nobody">Hech kim</button>
+      </div>
+    </div>
+    <div class="bd-catpick hidden" id="bd-catpick"></div>
+    <button class="btn light hidden" id="bd-luck-next">Davom etish <i data-icon="next"></i></button>
+    <div class="bd-results" id="bdq-results"></div>
+    <div class="bd-peek hidden" id="bdq-answer"></div>
+  </div>
+</section>
+
+<!-- ============ OʻZ OʻYINI: TOʻGʻRI JAVOB ============ -->
+<section class="screen dark hidden" id="s-bd-reveal">
+  <div class="q-head">
+    <span class="q-counter" id="bdr-tag"></span>
+    <h1 class="q-text">Toʻgʻri javob</h1>
+    <button class="btn light small" id="bd-back"><i data-icon="grid"></i> Doskaga</button>
+  </div>
+  <div class="center zk-reveal">
+    <div class="zk-answer" id="bdr-answer"></div>
+    <div class="zk-comment hidden" id="bdr-comment"></div>
+    <div class="bd-results big" id="bdr-results"></div>
+  </div>
+</section>
+
+<!-- ============ ZAKOVAT: YAKUN ============ -->
+<section class="screen dark hidden" id="s-zk-end">
+  <div class="q-head">
+    <span></span>
+    <h1 class="q-text">Gʻolib jamoalar</h1>
+    <span></span>
+  </div>
+  <div class="podium" id="zk-podium"></div>
+  <div class="row center-row">
+    <button class="btn ghost" id="zk-full"><i data-icon="grid"></i> Jadval</button>
+    <a class="btn green" id="zk-csv"><i data-icon="download"></i> Natijalarni yuklab olish (Excel/CSV)</a>
+    <button class="btn light" id="zk-home"><i data-icon="home"></i> Bosh sahifa</button>
+  </div>
+  <div class="wrap zk-table-wrap hidden" id="zk-end-table"></div>
+</section>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/icons.js"></script>
 <script src="/translit.js"></script>
 <script src="/common.js"></script>
 <script src="/host.js"></script>
+<script src="/zk-host.js"></script>
+<script src="/board-host.js"></script>
 </body>
 </html>

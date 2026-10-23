@@ -123,5 +123,7 @@ const Sound = {
   tick() { this.beep(880, 0.06, 'square', 0.05); },
   good() { [523, 659, 784].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle'), i * 110)); },
   bad() { this.beep(220, 0.35, 'sawtooth', 0.08); },
+  // Zakovat gongi — vaqt boshlanishi va tugashi
+  gong() { this.beep(196, 1.4, 'sine', 0.3); this.beep(392, 0.9, 'triangle', 0.08); },
   fanfare() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this.beep(f, 0.3, 'triangle', 0.18), i * 160)); },
 };

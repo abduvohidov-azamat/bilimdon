@@ -119,10 +119,127 @@
   </div>
 </section>
 
+<!-- ============ ZAKOVAT ============ -->
+<!-- Jamoa tanlash -->
+<section class="screen hidden" id="z-pick">
+  <div class="center">
+    <div class="badge-icon"><i data-icon="users"></i></div>
+    <div class="big">Jamoangizni tanlang</div>
+    <p style="opacity:.85">Bir partada oʻtirganlar bitta jamoani tanlaydi</p>
+    <div class="zp-choices" id="zp-choices"></div>
+  </div>
+</section>
+
+<!-- Kutish zali -->
+<section class="screen hidden" id="z-lobby">
+  <div class="center">
+    <div class="badge-icon"><i data-icon="brain"></i></div>
+    <div class="big">Siz oʻyindasiz!</div>
+    <div class="zp-team" id="zl-team"></div>
+    <p class="zp-role" id="zl-role"></p>
+    <button class="btn ghost small hidden" id="zl-change"><i data-icon="users"></i> Jamoani almashtirish</button>
+    <p style="opacity:.8"><span class="dots">Oʻqituvchi oʻyinni boshlashini kuting</span></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="zk-me-role"></span></div>
+</section>
+
+<!-- Savol va muhokama -->
+<section class="screen hidden" id="z-q">
+  <div class="topbar"><span id="zq-num"></span><span class="timer" id="zq-timer-wrap"><i data-icon="clock"></i><span id="zq-timer"></span></span></div>
+  <div class="zq-text" id="zq-text"></div>
+  <img class="zq-img hidden" id="zq-img" alt="">
+  <div class="zq-body">
+    <div class="pill" id="zq-reading"><i data-icon="sound"></i> Savolni tinglang — vaqt hali boshlanmadi</div>
+    <form class="zq-form hidden" id="zq-form" autocomplete="off">
+      <label class="zq-label" for="zq-input" id="zq-label"></label>
+      <div class="zq-row">
+        <input id="zq-input" maxlength="80" enterkeyhint="send">
+        <button class="btn green" id="zq-send"></button>
+      </div>
+      <div class="zq-status" id="zq-status"></div>
+    </form>
+    <div class="zq-ideas hidden" id="zq-ideas-wrap">
+      <div class="zq-ideas-title" id="zq-ideas-title"></div>
+      <div id="zq-ideas"></div>
+    </div>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="zk-me-role"></span></div>
+</section>
+
+<!-- Baholanmoqda -->
+<section class="screen hidden" id="z-wait">
+  <div class="center">
+    <div class="spinner"></div>
+    <div class="big">Javoblar baholanmoqda</div>
+    <p id="zw-answer"></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="zk-me-role"></span></div>
+</section>
+
+<!-- Natija -->
+<section class="screen hidden" id="z-result">
+  <div class="center">
+    <div class="badge-icon" id="zr-icon"></div>
+    <div class="big" id="zr-title"></div>
+    <p id="zr-team-answer" style="opacity:.9"></p>
+    <div class="pill" id="zr-correct"></div>
+    <p class="zr-comment hidden" id="zr-comment"></p>
+    <p id="zr-rank" style="font-size:18px;font-weight:800"></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="score-chip" id="zr-score"></span></div>
+</section>
+
+<!-- Yakun -->
+<section class="screen hidden" id="z-end">
+  <div class="center">
+    <div class="badge-icon" id="ze-medal"></div>
+    <div class="rankno pop" id="ze-rank"></div>
+    <div class="big" id="ze-title"></div>
+    <div class="pill" id="ze-score"></div>
+    <br><a class="btn light" href="/" style="margin-top:20px"><i data-icon="play"></i> Yana oʻynash</a>
+  </div>
+</section>
+
+<!-- ============ OʻZ OʻYINI ============ -->
+<!-- Doska: kimning navbati -->
+<section class="screen hidden" id="b-wait">
+  <div class="center">
+    <div class="bp-turn" id="bw-turn"></div>
+    <p class="bp-standing" id="bw-standing"></p>
+    <p id="bw-left" style="opacity:.75"></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="score-chip bp-score"></span></div>
+</section>
+
+<!-- Savol -->
+<section class="screen hidden" id="b-q">
+  <div class="topbar"><span id="bq-tag"></span><span class="timer" id="bq-timer-wrap"><i data-icon="clock"></i><span id="bq-timer"></span></span></div>
+  <div class="bp-banner" id="bq-banner"></div>
+  <div class="zq-text" id="bq-text"></div>
+  <img class="zq-img hidden" id="bq-img" alt="">
+  <div class="bp-results" id="bq-results"></div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="score-chip bp-score"></span></div>
+</section>
+
+<!-- Toʻgʻri javob -->
+<section class="screen hidden" id="b-result">
+  <div class="center">
+    <div class="badge-icon" id="br-icon"></div>
+    <div class="big" id="br-title"></div>
+    <div class="pill" id="br-answer"></div>
+    <p class="zr-comment hidden" id="br-comment"></p>
+    <div class="bp-results" id="br-results"></div>
+    <p class="bp-standing" id="br-standing"></p>
+  </div>
+  <div class="bottombar"><span><span class="me-name"></span> <span class="team-chip zk-me-team"></span></span><span class="score-chip bp-score"></span></div>
+</section>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/icons.js"></script>
 <script src="/translit.js"></script>
 <script src="/common.js"></script>
 <script src="/play.js"></script>
+<script src="/zk-play.js"></script>
+<script src="/board-play.js"></script>
 </body>
 </html>

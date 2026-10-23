@@ -158,6 +158,11 @@ body.light .topbar { background: color-mix(in srgb, var(--surface) 88%, transpar
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px) scale(.95); } }
 @keyframes toastOut { to { opacity: 0; transform: translate(-50%, 10px); } }
 
+/* Zakovat jamoalari ranglari (8 tagacha) */
+.t0 { --team: #e21b3c; } .t1 { --team: #1368ce; } .t2 { --team: #d89e00; } .t3 { --team: #26890c; }
+.t4 { --team: #5b3f9e; } .t5 { --team: #0a7c86; } .t6 { --team: #c2410c; } .t7 { --team: #9d174d; }
+:is(.t0, .t1, .t2, .t3, .t4, .t5, .t6, .t7) { background: var(--team); }
+
 .team-chip { display: inline-block; color: #fff; padding: 2px 10px; border-radius: 99px; font-size: 13px; font-weight: 900; margin-left: 6px; }
 
 /* ================= Oʻquvchi ekranlari (telefon) ================= */
@@ -197,6 +202,93 @@ body.light .topbar { background: color-mix(in srgb, var(--surface) 88%, transpar
 .countdown { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; font-size: 84px; font-weight: 900; margin: 20px auto; border: 8px solid rgba(255,255,255,.25); border-top-color: var(--gold); animation: spin 1s linear infinite; }
 .countdown span { display: block; animation: spinBack 1s linear infinite; }
 @keyframes spinBack { to { transform: rotate(-360deg); } }
+
+/* ================= Zakovat (telefon) ================= */
+.zp-choices { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 360px; margin-top: 10px; }
+.zp-choice { display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: var(--radius); color: #fff; font: inherit; font-weight: 900; font-size: 22px; padding: 16px 20px; box-shadow: var(--shadow); cursor: pointer; animation: tileIn .45s var(--ease-back) both; transition: transform .12s; }
+.zp-choice:active { transform: scale(.97); }
+.zp-choice small { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; opacity: .9; }
+.zp-choice.on { outline: 4px solid #fff; outline-offset: -4px; }
+.zp-team { width: 100%; max-width: 360px; margin: 10px 0; }
+.zp-team-name { border-radius: 14px 14px 0 0; padding: 12px; font-size: 26px; font-weight: 900; }
+.zp-members { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; background: rgba(0,0,0,.22); border-radius: 0 0 14px 14px; padding: 12px; }
+.zp-members span { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,.14); border-radius: 99px; padding: 4px 12px; font-size: 15px; }
+.zp-members span.cap { background: #fff; color: var(--navy); }
+.zp-members .ic, .zp-role .ic, .zk-me-role .ic, .zq-label .ic { color: var(--gold); fill: var(--gold); }
+.zp-members span.cap .ic { color: #e0a800; fill: #ffd84d; }
+.zp-role { font-size: 17px; max-width: 340px; }
+.zk-me-role { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; }
+
+.zq-text { padding: 14px 16px 6px; font-size: 18px; font-weight: 800; line-height: 1.4; white-space: pre-line; max-height: 38vh; overflow-y: auto; animation: screenIn .4s var(--ease-out) both; }
+.zq-img { display: block; max-width: calc(100% - 32px); max-height: 26vh; margin: 6px auto; border-radius: 12px; }
+.zq-body { flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 10px 14px 16px; }
+.zq-body > .pill { align-self: center; }
+.zq-form { background: var(--surface); color: var(--ink); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-lg); animation: rise .4s var(--ease-out) both; }
+.zq-label { display: flex; align-items: center; gap: 6px; font-weight: 900; margin-bottom: 8px; }
+.zq-row { display: flex; gap: 8px; }
+.zq-row input { flex: 1; min-width: 0; font: inherit; font-weight: 800; font-size: 20px; padding: 12px; border: 2px solid var(--line); border-radius: 12px; outline: none; color: var(--ink); background: var(--field); }
+.zq-row input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(0,153,181,.18); }
+.zq-row .btn { padding: 12px 16px; font-size: 16px; }
+.zq-status { margin-top: 10px; font-size: 15px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.zq-status small { flex-basis: 100%; font-size: 13px; }
+.zq-status b { color: var(--ink); }
+.zq-status.ok, .zq-status.ok .ic { color: var(--green); }
+.zq-status.warn { color: var(--red); font-weight: 900; animation: pulse .5s infinite alternate; }
+.zq-ideas-title { font-weight: 900; opacity: .85; margin-bottom: 8px; }
+.zq-idea { display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; border: 2px solid transparent; border-radius: 12px; background: rgba(0,0,0,.25); color: #fff; font: inherit; padding: 10px 14px; margin-bottom: 8px; cursor: pointer; animation: tileIn .35s var(--ease-back) both; transition: border-color .2s, background-color .2s; }
+.zq-idea b { font-size: 18px; word-break: break-word; }
+.zq-idea small { opacity: .75; font-size: 13px; }
+.zq-idea.chosen { border-color: var(--gold); background: rgba(255,216,77,.16); }
+
+#z-result.good { background: linear-gradient(160deg, #1eb53a, #128a2b); }
+#z-result.bad { background: linear-gradient(160deg, #e21b3c, #a5122b); }
+.zr-comment { max-width: 420px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 12px 16px; line-height: 1.45; }
+
+/* ================= Oʻz oʻyini (telefon) ================= */
+.bp-turn { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-width: 360px; padding: 26px 18px; border-radius: 22px; background: rgba(0,0,0,.22); animation: rise .45s var(--ease-out) both; }
+.bp-turn .ic { width: 52px; height: 52px; }
+.bp-turn b { font-size: 26px; }
+.bp-turn span { opacity: .85; }
+.bp-turn.mine { background: var(--team); box-shadow: 0 0 0 4px #fff, var(--shadow-lg); animation: rise .45s var(--ease-out) both, pulse .8s .5s infinite alternate; }
+.bp-turn.mine .ic { color: #ffd84d; fill: #ffd84d; }
+.bp-standing { font-size: 17px; font-weight: 800; }
+.bp-standing .ic { color: var(--gold); }
+.bp-banner { display: flex; align-items: center; gap: 12px; margin: 12px 14px 0; padding: 14px 16px; border-radius: 16px; background: rgba(0,0,0,.25); text-align: left; animation: rise .4s var(--ease-out) both; }
+.bp-banner .ic { width: 36px; height: 36px; flex: none; }
+.bp-banner b { display: block; font-size: 19px; }
+.bp-banner span { display: block; font-size: 14px; opacity: .9; }
+.bp-banner.mine { background: var(--team); box-shadow: 0 0 0 3px #fff; }
+.bp-banner.cat { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+.bp-banner.luck { background: linear-gradient(135deg, #d89e00, #b45309); }
+.bp-results { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 10px 14px; }
+.bp-results .bd-res { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.25); border-radius: 99px; padding: 3px 12px 3px 3px; font-size: 15px; }
+.bp-results .team-chip { margin: 0; }
+.bp-results .bd-res.plus b { color: #8ff0a4; }
+.bp-results .bd-res.minus b { color: #ffd0d7; }
+#b-result.good { background: linear-gradient(160deg, #1eb53a, #128a2b); }
+#b-result.bad { background: linear-gradient(160deg, #e21b3c, #a5122b); }
+
+/* ================= Oʻqituvchi pulti (telefon) ================= */
+.rm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 3; }
+.rm-head b { font-size: 17px; }
+.rm-head .muted { font-size: 13px; }
+.rm-scores { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 14px 0; }
+.rm-scores span { display: inline-flex; align-items: center; gap: 6px; color: #fff; border-radius: 99px; padding: 4px 12px; font-weight: 900; font-size: 14px; }
+.rm-scores span.turn { box-shadow: 0 0 0 3px var(--ink); }
+.rm-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.rm-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: var(--shadow-sm); }
+.rm-tag { font-size: 13px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.rm-q { font-size: 17px; font-weight: 800; margin: 6px 0 0; }
+.rm-answer { background: color-mix(in srgb, var(--green) 14%, transparent); border: 2px solid var(--green); border-radius: 14px; padding: 12px 14px; }
+.rm-answer b { display: block; font-size: 24px; color: var(--green); }
+.rm-answer small { color: var(--muted); }
+.rm-grid { display: grid; gap: 6px; }
+.rm-grid .tp { font-size: 12px; font-weight: 900; display: flex; align-items: center; color: var(--muted); line-height: 1.1; }
+.rm-grid button { border: 0; border-radius: 10px; padding: 12px 0; font: inherit; font-weight: 900; font-size: 15px; color: #ffd84d; background: linear-gradient(160deg, #1d4ed8, #1e3a8a); cursor: pointer; }
+.rm-grid button:disabled { background: var(--surface-2); color: transparent; }
+.rm-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rm-btns .btn { padding: 18px; font-size: 20px; }
+.rm-btns .wide { grid-column: 1 / -1; }
 
 /* Konfetti */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }

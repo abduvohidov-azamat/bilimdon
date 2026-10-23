@@ -22,7 +22,7 @@ function setScore(score) {
 const baseShow = show;
 show = id => {
   baseShow(id);
-  $('#corner-tools').classList.toggle('hidden', !['s-pin', 's-name', 's-end', 's-kicked'].includes(id));
+  $('#corner-tools').classList.toggle('hidden', !['s-pin', 's-name', 's-end', 's-kicked', 'z-pick', 'z-end'].includes(id));
 };
 function setName(name) {
   document.querySelectorAll('.me-name').forEach(e => (e.textContent = name));

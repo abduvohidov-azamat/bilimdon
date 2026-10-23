@@ -1,6 +1,8 @@
 // Birinchi ishga tushirishda yaratiladigan namunaviy viktorinalar
 const TF = ['Toʻgʻri', 'Notoʻgʻri'];
 const mc = (text, options, correct, time = 20, extra = {}) => ({ type: 'multiple', text, image: '', options, correct: [correct], time, points: 1, ...extra });
+const zk = (text, answer, extra = {}) => ({ type: 'open', text, image: '', answer, accept: [], reject: [], comment: '', source: '', time: 60, ...extra });
+const cell = (text, answer, comment = '', special = '') => ({ text, image: '', answer, comment, special });
 const tf = (text, isTrue, time = 10) => ({ type: 'truefalse', text, image: '', options: TF, correct: [isTrue ? 0 : 1], time, points: 1 });
 
 module.exports = [
@@ -48,6 +50,83 @@ module.exports = [
       mc('Katta yoshli inson tanasida nechta suyak bor?', ['206', '180', '256', '300'], 0),
       tf('Oy oʻzidan nur taratadi.', false),
       mc('Yorugʻlikning vakuumdagi tezligi taxminan qancha?', ['30 000 km/s', '300 km/s', '3 000 000 km/s', '300 000 km/s'], 3, 30),
+    ],
+  },
+  {
+    id: 'zakovat-namuna',
+    mode: 'zakovat',
+    title: 'Zakovat: namunaviy oʻyin',
+    description: 'Jamoaviy intellektual oʻyin — 8 ta savol, har biriga 1 daqiqa muhokama',
+    updatedAt: Date.now() - 3000,
+    questions: [
+      zk('Qadimgi turkiy xalqlar bu afsonaviy qushni baxt ramzi deb bilishgan: uning soyasi kimning ustiga tushsa, oʻsha odam baxtli boʻladi, deyishgan. Bugun bu qush Oʻzbekiston gerbida qanot yozib turibdi. Qushning nomini ayting.',
+        'Humo', { accept: ['Xumo', 'Humo qushi'], reject: ['Burgut', 'Lochin'], comment: 'Humo — baxt va saodat qushi. Oʻzbekiston Respublikasi Davlat gerbining markazida qanotlarini yozgan Humo qushi tasvirlangan.', source: 'Oʻzbekiston Respublikasining Davlat gerbi' }),
+      zk('XV asrda Samarqand rasadxonasida tuzilgan yulduzlar jadvalida mingdan ortiq yulduzning oʻrni koʻrsatilgan. 1665-yilda bu jadval Oksfordda lotin tilida nashr etilgan. Jadval kimning rahbarligida tuzilgan?',
+        'Mirzo Ulugʻbek', { accept: ['Ulugʻbek'], comment: 'Mirzo Ulugʻbek — Amir Temurning nabirasi, buyuk astronom. Uning «Ziji jadidi Koʻragoniy» asarida 1018 ta yulduzning oʻrni koʻrsatilgan.' }),
+      zk('Alisher Navoiy turkiy tilda «Navoiy» taxallusi bilan ijod qilgan. Forsiy tildagi sheʼrlarida esa u boshqa taxallusni qoʻllagan. Bu taxallus «oʻtkinchi, yoʻq boʻlib ketuvchi» degan maʼnoni anglatadi. Uni ayting.',
+        'Foniy', { comment: 'Navoiyning forsiy sheʼrlari «Devoni Foniy» toʻplamiga jamlangan.' }),
+      zk('Xitoy manbalarida bu shahar «Shi», arab manbalarida «Shosh», mahalliy aholi tilida esa «Choch» deb atalgan. XI asrdan boshlab u bugungi nomi bilan tilga olina boshlagan. Shaharni ayting.',
+        'Toshkent', { accept: ['Tashkent'], comment: 'Xitoycha «Shi» — «tosh» degani. «Toshkent» nomi ilk bor Beruniy va Mahmud Koshgʻariy asarlarida uchraydi.' }),
+      zk('Muallif bu asarni kundalik kabi yozgan: unda Fargʻona, Samarqand, Kobul va Hindistondagi voqealar, u yerlarning oʻsimlik va hayvonlari, odamlari tasvirlangan. Asar «Vaqoyi» nomi bilan ham mashhur. Uning nomini ayting.',
+        'Boburnoma', { accept: ['Bobur-noma', 'Baburnama'], comment: '«Boburnoma» — Zahiriddin Muhammad Boburning xotiralari, oʻzbek mumtoz nasrining nodir namunasi.' }),
+      zk('Bu kimyoviy element nomi yunoncha «quyosh» soʻzidan olingan. Chunki u avval Yerda emas, 1868-yilda Quyosh spektrida topilgan. Elementni ayting.',
+        'Geliy', { accept: ['Helium', 'He'], comment: 'Yunoncha «helios» — quyosh. Yerda geliy faqat 1895-yilda topilgan.' }),
+      zk('Shaxmatda bu figura faqat oldinga yuradi, lekin raqibni qiyshiq uradi. Oxirgi qatorga yetib borsa, shohdan boshqa istalgan figuraga aylanishi mumkin. Figurani ayting.',
+        'Piyoda', { accept: ['Peshka'], comment: 'Piyoda oxirgi qatorga yetganda farzin, ruh, fil yoki otga aylanadi.' }),
+      zk('Lotin tilidagi tarjimalarda bu olimning ismi «Algoritmi» deb yozilgan. Bugun bu soʻz har qanday kompyuter dasturining asosini bildiradi. Olimni ayting.',
+        'al-Xorazmiy', { accept: ['Xorazmiy', 'Muhammad al-Xorazmiy', 'Muhammad ibn Muso al-Xorazmiy', 'al-Khwarizmi'], comment: 'Muhammad ibn Muso al-Xorazmiy (IX asr) — buyuk matematik. «Algoritm» soʻzi uning ismidan, «algebra» esa asari nomidan kelib chiqqan.' }),
+    ],
+  },
+  {
+    id: 'oz-oyini-namuna',
+    mode: 'board',
+    title: 'Oʻz oʻyini: Bilimlar bellashuvi',
+    description: '6 ta mavzu × 5 ta qiymat — jamoalar navbat bilan katakcha tanlaydi',
+    updatedAt: Date.now() - 4000,
+    values: [100, 200, 300, 400, 500],
+    topics: [
+      { name: 'Koinot', cells: [
+        cell('Yerga eng yaqin yulduz qaysi?', 'Quyosh'),
+        cell('Quyosh tizimidagi eng katta sayyora qaysi?', 'Yupiter', 'Yupiter shunchalik kattaki, unga Yerga oʻxshash 1300 dan ortiq sayyora sigʻadi.'),
+        cell('Qaysi sayyorani «Qizil sayyora» deyishadi?', 'Mars', 'Mars tuprogʻidagi temir oksidi unga qizgʻish rang beradi.'),
+        cell('Koinotga uchgan birinchi inson kim?', 'Yuriy Gagarin', '1961-yil 12-aprelda «Vostok-1» kemasida.'),
+        cell('Oyga birinchi boʻlib qadam qoʻygan inson kim?', 'Nil Armstrong', '1969-yil 21-iyul, «Apollon-11» ekspeditsiyasi.'),
+      ] },
+      { name: 'Oʻzbekiston', cells: [
+        cell('Oʻzbekistonning poytaxti qaysi shahar?', 'Toshkent'),
+        cell('Oʻzbekistonda nechta viloyat bor?', '12 ta', 'Bundan tashqari Qoraqalpogʻiston Respublikasi va Toshkent shahri bor.'),
+        cell('Registon maydoni qaysi shaharda joylashgan?', 'Samarqand', 'Maydonni Ulugʻbek, Sherdor va Tillakori madrasalari oʻrab turadi.'),
+        cell('Oʻzbekiston bayrogʻida nechta yulduz bor?', '12 ta'),
+        cell('«Ichan qalʼa» qaysi shaharda joylashgan?', 'Xiva', '1990-yilda YUNESKOning Butunjahon merosi roʻyxatiga kiritilgan.'),
+      ] },
+      { name: 'Tabiat', cells: [
+        cell('Quruqlikdagi eng katta hayvon qaysi?', 'Afrika fili'),
+        cell('Oʻsimliklar quyosh nuri yordamida oziq hosil qilish jarayoni nima deb ataladi?', 'Fotosintez'),
+        cell('Qaysi qush orqaga ham ucha oladi?', 'Kolibri', '', 'cat'),
+        cell('Inson tanasidagi eng katta aʼzo qaysi?', 'Teri'),
+        cell('Olmos qaysi kimyoviy elementdan tashkil topgan?', 'Uglerod', 'Grafit ham uglerod — faqat atomlari boshqacha joylashgan.'),
+      ] },
+      { name: 'Adabiyot', cells: [
+        cell('«Oʻtkan kunlar» romanining muallifi kim?', 'Abdulla Qodiriy'),
+        cell('«Boburnoma» asarining muallifi kim?', 'Zahiriddin Muhammad Bobur'),
+        cell('«Shum bola» qissasini kim yozgan?', 'Gʻafur Gʻulom'),
+        cell('Alisher Navoiyning «Xamsa»si nechta dostondan iborat?', '5 ta', '«Hayrat ul-abror», «Farhod va Shirin», «Layli va Majnun», «Sabʼai sayyor», «Saddi Iskandariy».'),
+        cell('«Kecha va kunduz» romanining muallifi kim?', 'Choʻlpon'),
+      ] },
+      { name: 'Matematika', cells: [
+        cell('', '', '', 'luck'),
+        cell('Uchburchak ichki burchaklarining yigʻindisi necha gradus?', '180°'),
+        cell('Eng kichik tub son qaysi?', '2', '2 — yagona juft tub son.'),
+        cell('Doira yuzi qaysi formula bilan topiladi?', 'S = πr²'),
+        cell('1 dan 100 gacha boʻlgan barcha sonlar yigʻindisi nechaga teng?', '5050', 'Gauss buni maktabda bir necha soniyada topgan: 50 juft × 101 = 5050.'),
+      ] },
+      { name: 'Sport', cells: [
+        cell('Futbol jamoasidan maydonda bir vaqtda nechta oʻyinchi oʻynaydi?', '11 ta'),
+        cell('Olimpiya ramzida nechta halqa bor?', '5 ta', 'Halqalar besh qitʼani ifodalaydi.'),
+        cell('Shaxmat taxtasida nechta katak bor?', '64 ta'),
+        cell('Kurash qaysi xalqning milliy sport turi?', 'Oʻzbek xalqining', 'Kurash 1998-yildan xalqaro sport turi sifatida rivojlanmoqda.'),
+        cell('Rustam Qosimjonov 2004-yilda qaysi sport turi boʻyicha jahon chempioni boʻlgan?', 'Shaxmat', 'FIDE versiyasi boʻyicha jahon chempionati, Liviya.'),
+      ] },
     ],
   },
 ];

@@ -73,6 +73,12 @@
     });
   }
 
+  // Serverda (Node) — faqat oʻgirish funksiyalari kerak (Zakovat javoblarini solishtirish uchun)
+  if (typeof module === 'object' && module.exports) {
+    module.exports = { toCyr, toLat };
+    return;
+  }
+
   // ---------- Sahifaga qoʻllash ----------
   let mode = 'lat';
   try { mode = localStorage.getItem(STORE) === 'cyr' ? 'cyr' : 'lat'; } catch {}

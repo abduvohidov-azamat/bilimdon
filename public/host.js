@@ -4,10 +4,11 @@ const socket = io({ autoConnect: false });
 const HOST_STORE = 'bilimdon-host';
 const TF_OPTS = ['Toʻgʻri', 'Notoʻgʻri'];
 const TIMES = [5, 10, 20, 30, 60, 90, 120];
+const ZK_TIMES = [60, 30, 20];
 let me = null;
 let game = null; // { pin, hostToken, title, total }
 let timerInt = null;
-setTimeout(() => ($('#btn-sound').innerHTML = icon('sound')));
+setTimeout(() => document.querySelectorAll('#btn-sound, .sound-toggle').forEach(b => (b.innerHTML = icon('sound'))));
 
 const LIGHT_SCREENS = ['s-library', 's-editor', 's-hw'];
 function screen(id) {
@@ -132,15 +133,22 @@ function coverFor(id) {
   return COVERS[h % COVERS.length];
 }
 
+// Jamoaviy oʻyinlar kartasi: oʻz rangi, ikonkasi va nomi
+const MODES = {
+  zakovat: { cover: ['#16213a', '#5b3f9e'], icon: 'brain', label: 'Zakovat' },
+  board: { cover: ['#7c2d12', '#b45309'], icon: 'grid', label: 'Oʻz oʻyini' },
+};
+
 function quizCard(q, i = 0) {
-  const [c1, c2, ic] = coverFor(q.id);
+  const mode = MODES[q.mode];
+  const [c1, c2, ic] = mode ? [...mode.cover, mode.icon] : coverFor(q.id);
   return `
     <div class="qcard ${q.sample ? 'sample' : ''}" style="--i:${i}">
-      <div class="cover" style="--c1:${c1};--c2:${c2}">${icon(ic, 'big-ic')}<span class="chip">${icon('list')} ${q.count} ta savol${q.sample ? ' · namuna' : ''}</span></div>
+      <div class="cover" style="--c1:${c1};--c2:${c2}">${icon(ic, 'big-ic')}<span class="chip">${mode ? `${icon(mode.icon)} ${mode.label} ·` : icon('list')} ${q.count} ta savol${q.sample ? ' · namuna' : ''}</span></div>
       <div class="body" ${q.lang === 'other' ? 'data-raw' : ''}><h3>${esc(q.title)}</h3><p>${esc(q.description)}</p></div>
       <div class="actions">
-        <button class="btn green" data-act="play" data-id="${q.id}" title="Jonli oʻyin">${icon('play')} Boshlash</button>
-        <button class="btn ghost" data-act="hw" data-id="${q.id}" title="Uy vazifasi berish">${icon('homework')}</button>
+        <button class="btn green" data-act="play" data-id="${q.id}" data-mode="${mode ? q.mode : ''}" title="Jonli oʻyin">${icon('play')} Boshlash</button>
+        ${mode ? '' : `<button class="btn ghost" data-act="hw" data-id="${q.id}" title="Uy vazifasi berish">${icon('homework')}</button>`}
         ${q.sample ? '' : `<button class="btn ghost" data-act="edit" data-id="${q.id}" title="Tahrirlash">${icon('edit')}</button>`}
         <button class="btn ghost" data-act="copy" data-id="${q.id}" title="${q.sample ? 'Nusxa olib tahrirlash' : 'Nusxa olish'}">${icon('copy')}</button>
         ${q.sample ? '' : `<button class="btn ghost" data-act="del" data-id="${q.id}" title="Oʻchirish">${icon('trash')}</button>`}
@@ -153,7 +161,12 @@ $('#tab-quizzes').addEventListener('click', async e => {
   if (!b) return;
   const id = b.dataset.id;
   try {
-    if (b.dataset.act === 'play') createGame(id);
+    if (b.dataset.act === 'play') {
+      const title = b.closest('.qcard').querySelector('h3').textContent;
+      if (b.dataset.mode === 'zakovat') openZkDialog(id, title);
+      else if (b.dataset.mode === 'board') openBoardDialog(id, title);
+      else createGame(id);
+    }
     if (b.dataset.act === 'hw') openHwDialog(id, b.closest('.qcard').querySelector('h3').textContent);
     if (b.dataset.act === 'edit') openEditor(await api('GET', `/api/quizzes/${id}`));
     if (b.dataset.act === 'copy') {
@@ -173,6 +186,8 @@ $('#tab-quizzes').addEventListener('click', async e => {
 });
 
 $('#btn-new').addEventListener('click', () => openEditor({ title: '', description: '', questions: [blankQ('multiple')] }));
+$('#btn-new-zk').addEventListener('click', () => openEditor({ title: '', description: '', mode: 'zakovat', questions: [blankZk()] }));
+$('#btn-new-board').addEventListener('click', () => openEditor(blankBoard()));
 
 $('#import').addEventListener('change', async e => {
   const file = e.target.files[0];
@@ -193,6 +208,12 @@ $('#import').addEventListener('change', async e => {
 let draft = null;
 let dirty = false;
 
+function blankZk() {
+  return { type: 'open', text: '', image: '', answer: '', accept: [], reject: [], comment: '', source: '', time: 60 };
+}
+const isZkDraft = () => draft.mode === 'zakovat';
+const isBoardDraft = () => draft.mode === 'board';
+
 function blankQ(type) {
   return type === 'truefalse'
     ? { type, text: '', image: '', options: [...TF_OPTS], correct: [0], time: 10, points: 1 }
@@ -201,8 +222,18 @@ function blankQ(type) {
 
 function openEditor(quiz) {
   draft = JSON.parse(JSON.stringify(quiz));
+  draft.mode = MODES[quiz.mode] ? quiz.mode : 'classic';
   // Muharrirda har doim 4 ta javob maydoni koʻrinadi
-  for (const q of draft.questions) while (q.type !== 'truefalse' && q.options.length < 4) q.options.push('');
+  if (draft.mode === 'classic') for (const q of draft.questions) while (q.type !== 'truefalse' && q.options.length < 4) q.options.push('');
+  $('#ed-mode').classList.toggle('hidden', draft.mode === 'classic');
+  $('#ed-mode').innerHTML = isZkDraft() ? `${icon('brain')} Zakovat — ochiq javobli savollar, jamoaviy oʻyin`
+    : isBoardDraft() ? `${icon('grid')} Oʻz oʻyini — mavzular va ballar doskasi, jamoalar navbat bilan oʻynaydi` : '';
+  $('#ed-board-opts').classList.toggle('hidden', !isBoardDraft());
+  if (isBoardDraft()) $('#ed-values').value = draft.values.join(',');
+  $('#add-zk').classList.toggle('hidden', !isZkDraft());
+  $('#add-topic').classList.toggle('hidden', !isBoardDraft());
+  $('#add-mc').classList.toggle('hidden', draft.mode !== 'classic');
+  $('#add-tf').classList.toggle('hidden', draft.mode !== 'classic');
   dirty = false;
   $('#ed-title').value = draft.title;
   $('#ed-desc').value = draft.description || '';
@@ -212,7 +243,44 @@ function openEditor(quiz) {
   screen('s-editor');
 }
 
+const imgRow = q => `
+      <div class="img-row">
+        ${q.image ? `<img class="img-thumb" src="${esc(q.image)}" alt="">` : ''}
+        <input class="qe-img" data-f="image" placeholder="Rasm havolasi (ixtiyoriy) — yoki oʻngdagi tugma bilan yuklang" value="${esc(q.image)}">
+        <label class="btn ghost small" title="Kompyuterdan rasm yuklash">${icon('image')} Rasm yuklash<input type="file" accept="image/*" data-upload hidden></label>
+        ${q.image ? `<button class="icon-btn danger" data-act="noimg" title="Rasmni olib tashlash">${icon('x')}</button>` : ''}
+      </div>`;
+const moveButtons = () => `
+        <button class="icon-btn" data-act="up" title="Yuqoriga">${icon('up')}</button>
+        <button class="icon-btn" data-act="down" title="Pastga">${icon('down')}</button>
+        <button class="icon-btn" data-act="dup" title="Nusxa">${icon('copy')}</button>
+        <button class="icon-btn danger" data-act="del" title="Oʻchirish">${icon('trash')}</button>`;
+
+// Zakovat savoli: ochiq javob + qoʻshimcha qabul qilinadigan javoblar, izoh, manba
+const zkCard = (q, qi) => `
+    <div class="card" data-q="${qi}">
+      <div class="qe-head">
+        <span class="num">${qi + 1}</span>
+        <span class="muted type">${icon('brain')} Zakovat savoli</span>
+        <span class="spacer"></span>
+        <select data-f="time" title="Muhokama vaqti">${ZK_TIMES.map(t => `<option value="${t}" ${t === q.time ? 'selected' : ''}>${t === 60 ? '1 daqiqa' : t + ' soniya (blits)'}</option>`).join('')}</select>
+        ${moveButtons()}
+      </div>
+      <textarea class="qe-text zk-text" data-f="text" placeholder="Savol matni — boshlovchi uni ovoz chiqarib oʻqiydi" maxlength="800">${esc(q.text)}</textarea>
+      ${imgRow(q)}
+      <div class="zk-fields">
+        <label class="zk-field ok">${icon('checkCircle')}<span>Javob</span><input data-f="answer" value="${esc(q.answer)}" placeholder="Toʻgʻri javob" maxlength="80"></label>
+        <label class="zk-field">${icon('plus')}<span>Sanaladi</span><input data-f="accept" value="${esc(q.accept.join(', '))}" placeholder="Boshqa toʻgʻri variantlar, vergul bilan (ixtiyoriy)"></label>
+        <label class="zk-field no">${icon('ban')}<span>Sanalmaydi</span><input data-f="reject" value="${esc(q.reject.join(', '))}" placeholder="Qabul qilinmaydigan javoblar, vergul bilan (ixtiyoriy)"></label>
+        <label class="zk-field">${icon('message')}<span>Izoh</span><textarea data-f="comment" rows="2" placeholder="Javob eʼlon qilingach koʻrsatiladi (ixtiyoriy)" maxlength="600">${esc(q.comment)}</textarea></label>
+        <label class="zk-field">${icon('book')}<span>Manba</span><input data-f="source" value="${esc(q.source)}" placeholder="Manba yoki savol muallifi (ixtiyoriy)" maxlength="200"></label>
+      </div>
+      <p class="muted zk-note">Lotin/kirill, katta-kichik harf va kichik imlo xatolari avtomatik hisobga olinadi.</p>
+    </div>`;
+
 function renderQuestions() {
+  if (isBoardDraft()) return renderBoardEditor();
+  if (isZkDraft()) return void ($('#ed-questions').innerHTML = draft.questions.map(zkCard).join(''));
   $('#ed-questions').innerHTML = draft.questions.map((q, qi) => `
     <div class="card" data-q="${qi}">
       <div class="qe-head">
@@ -225,18 +293,10 @@ function renderQuestions() {
           <option value="2" ${q.points === 2 ? 'selected' : ''}>Ikki baravar ball</option>
           <option value="0" ${q.points === 0 ? 'selected' : ''}>Ballsiz</option>
         </select>
-        <button class="icon-btn" data-act="up" title="Yuqoriga">${icon('up')}</button>
-        <button class="icon-btn" data-act="down" title="Pastga">${icon('down')}</button>
-        <button class="icon-btn" data-act="dup" title="Nusxa">${icon('copy')}</button>
-        <button class="icon-btn danger" data-act="del" title="Oʻchirish">${icon('trash')}</button>
+        ${moveButtons()}
       </div>
       <textarea class="qe-text" data-f="text" placeholder="Savol matnini kiriting" maxlength="300">${esc(q.text)}</textarea>
-      <div class="img-row">
-        ${q.image ? `<img class="img-thumb" src="${esc(q.image)}" alt="">` : ''}
-        <input class="qe-img" data-f="image" placeholder="Rasm havolasi (ixtiyoriy) — yoki oʻngdagi tugma bilan yuklang" value="${esc(q.image)}">
-        <label class="btn ghost small" title="Kompyuterdan rasm yuklash">${icon('image')} Rasm yuklash<input type="file" accept="image/*" data-upload hidden></label>
-        ${q.image ? `<button class="icon-btn danger" data-act="noimg" title="Rasmni olib tashlash">${icon('x')}</button>` : ''}
-      </div>
+      ${imgRow(q)}
       <div class="qe-opts">
         ${q.options.map((o, oi) => `
           <div class="qe-opt a${oi} ${q.type === 'truefalse' ? 'tf' : ''}">
@@ -254,7 +314,8 @@ qEditor.addEventListener('input', e => {
   if (!card) return;
   const q = draft.questions[+card.dataset.q];
   const f = e.target.dataset.f;
-  if (f === 'text' || f === 'image') q[f] = e.target.value;
+  if (['text', 'image', 'answer', 'comment', 'source'].includes(f)) q[f] = e.target.value;
+  if (f === 'accept' || f === 'reject') q[f] = e.target.value.split(/[,;]/).map(x => x.trim()).filter(Boolean);
   if (f === 'time' || f === 'points') q[f] = +e.target.value;
   if (e.target.dataset.opt !== undefined) q.options[+e.target.dataset.opt] = e.target.value;
   dirty = true;
@@ -335,7 +396,7 @@ async function uploadImage(file) {
 }
 
 function addQuestion(type) {
-  draft.questions.push(blankQ(type));
+  draft.questions.push(type === 'open' ? blankZk() : blankQ(type));
   dirty = true;
   renderQuestions();
   const cards = qEditor.querySelectorAll('[data-q]');
@@ -345,6 +406,7 @@ function addQuestion(type) {
 }
 $('#add-mc').addEventListener('click', () => addQuestion('multiple'));
 $('#add-tf').addEventListener('click', () => addQuestion('truefalse'));
+$('#add-zk').addEventListener('click', () => addQuestion('open'));
 $('#ed-title').addEventListener('input', e => { draft.title = e.target.value; dirty = true; });
 $('#ed-desc').addEventListener('input', e => { draft.description = e.target.value; dirty = true; });
 $('#ed-lang').addEventListener('change', e => { draft.lang = e.target.value; dirty = true; });
@@ -352,8 +414,9 @@ $('#ed-lang').addEventListener('change', e => { draft.lang = e.target.value; dir
 // Boʻsh qolgan 3- va 4-javoblarni olib tashlab, toʻgʻri javob indekslarini moslash
 function prepareForSave(d) {
   const out = JSON.parse(JSON.stringify(d));
+  if (out.mode === 'board') return out;
   out.questions = out.questions.map(q => {
-    if (q.type === 'truefalse') return q;
+    if (q.type === 'truefalse' || q.type === 'open') return q;
     const keep = q.options.map((o, i) => ({ o: o.trim(), i })).filter((x, idx) => x.o || idx < 2);
     return { ...q, options: keep.map(x => x.o), correct: q.correct.map(c => keep.findIndex(x => x.i === c)).filter(c => c >= 0) };
   });
@@ -554,12 +617,14 @@ function showLobby(g, title, players, teamCount = 0, locked = false) {
   showJoinInfo(g.pin);
 }
 
-function createGame(quizId) {
+// opts — Zakovat uchun: { teams, pick }
+function createGame(quizId, opts = {}) {
   if (!socket.connected) return toast('Server bilan aloqa yoʻq. Sahifani yangilang');
-  socket.emit('host:create', { quizId }, res => {
+  socket.emit('host:create', { quizId, ...opts }, res => {
     if (res.error) return toast(res.error);
     saveHost(res);
-    showLobby(res, res.title, []);
+    // Zakovat ekrani serverdan keladigan 'zk:state' bilan chiziladi
+    if (!res.zk) showLobby(res, res.title, []);
   });
 }
 
@@ -602,10 +667,12 @@ $('#btn-lock').addEventListener('click', () => {
   setLockLabel(locked);
   socket.emit('host:lock', locked);
 });
-$('#btn-sound').addEventListener('click', () => {
+function toggleSound() {
   Sound.on = !Sound.on;
-  $('#btn-sound').innerHTML = icon(Sound.on ? 'sound' : 'mute');
-});
+  document.querySelectorAll('#btn-sound, .sound-toggle').forEach(b => (b.innerHTML = icon(Sound.on ? 'sound' : 'mute')));
+}
+$('#btn-sound').addEventListener('click', toggleSound);
+document.querySelectorAll('.sound-toggle').forEach(b => b.addEventListener('click', toggleSound));
 
 socket.on('q:getready', d => {
   clearInterval(timerInt);
@@ -749,6 +816,7 @@ socket.on('connect', () => {
     }
     game = g;
     game.raw = res.raw;
+    if (res.zk) return; // Zakovat holati 'zk:state' bilan keladi
     if (res.state === 'lobby') showLobby(g, res.title, res.players, res.teamCount, res.locked);
   });
 });
